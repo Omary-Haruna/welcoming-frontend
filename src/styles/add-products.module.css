@@ -1,0 +1,49 @@
+/* Container holding both left and right sections */
+.container {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    padding: 24px;
+    background-color: #f5f7fa;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Left side for form (manual + Excel import) */
+.left {
+    flex: 1;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    max-width: 450px;
+    overflow-y: auto;
+}
+
+/* Right side for showing product list */
+.right {
+    flex: 2;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow-y: auto;
+}
+
+/* ✅ Responsive for Mobile */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .left,
+    .right {
+        max-width: 100%;
+        width: 100%;
+        padding: 16px;
+        box-shadow: none;
+        border-radius: 12px;
+    }
+}

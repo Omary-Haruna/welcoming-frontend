@@ -1,0 +1,87 @@
+.container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.toggleButton {
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    /* blue gradient */
+    color: #ffffff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: all 0.3s ease;
+}
+
+.toggleButton:hover {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    /* deeper blue */
+    box-shadow: 0 6px 18px rgba(59, 130, 246, 0.4);
+}
+
+.dropdownMenu {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    position: absolute;
+    top: 110%;
+    left: 0;
+    z-index: 1000;
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    /* dark blue glass */
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 1rem;
+    width: 260px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    color: #f1f5f9;
+}
+
+.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.checkboxItem {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    padding: 0.4rem 0;
+    color: #f8fafc;
+    gap: 8px;
+}
+
+.checkboxItem input {
+    accent-color: #3b82f6;
+    /* blue checkbox */
+}
+
+.uncheckAllBtn {
+    background-color: #f3f4f6;
+    color: #374151;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.uncheckAllBtn:hover {
+    background-color: #e5e7eb;
+}

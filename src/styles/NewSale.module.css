@@ -1,0 +1,100 @@
+.container {
+    display: grid;
+    grid-template-areas:
+        "category pos cart"
+        "summary summary summary";
+    grid-template-columns: 1fr 4fr 2fr;
+    grid-template-rows: auto auto;
+    gap: 16px;
+    min-height: 100vh;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+/* === Grid Areas === */
+.category {
+    grid-area: category;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1px;
+    overflow-y: auto;
+}
+
+.pos {
+    grid-area: pos;
+    background-color: #ffffff;
+    padding: 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cart {
+    grid-area: cart;
+    background-color: #f1f1f1;
+    border-radius: 8px;
+    padding: 12px;
+    overflow-y: auto;
+}
+
+.summary {
+    grid-area: summary;
+    background-color: #eaeaea;
+    border-radius: 8px;
+    padding: 16px;
+    overflow-y: auto;
+}
+
+/* === Tablet Layout (Stacked) === */
+@media (max-width: 1024px) {
+    .container {
+        grid-template-areas:
+            "pos"
+            "cart"
+            "summary";
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        height: auto;
+        padding: 12px;
+    }
+
+    .category {
+        display: none;
+        /* ✅ hide category panel */
+    }
+
+    .pos,
+    .cart,
+    .summary {
+        max-height: 80vh;
+    }
+}
+
+
+@media (max-width: 600px) {
+    .container {
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .category {
+        display: none;
+        /* ✅ hide category */
+    }
+
+    .pos,
+    .cart,
+    .summary {
+        max-height: none;
+        /* ✅ */
+    }
+
+    .pos {
+        gap: 10px;
+    }
+
+    .summary {
+        padding: 10px;
+    }
+}

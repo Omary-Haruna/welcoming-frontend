@@ -1,0 +1,113 @@
+.card {
+    grid-area: staticStats;
+    background-color: #f8fbff;
+    color: #333;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+
+    box-sizing: border-box;
+    overflow: hidden;
+
+}
+
+.headerContainer {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.controlsContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.dropdown {
+    flex: 1;
+    padding: 8px;
+    font-size: 0.9rem;
+    color: #444;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dropdown:hover,
+.dropdown:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+.chartContainer {
+    width: 100%;
+    height: 250px;
+    position: relative;
+}
+
+.customTooltip {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
+    color: #333;
+}
+
+/* Ensure Pie chart labels don’t overflow */
+.recharts-pie-labels {
+    pointer-events: none;
+    /* Prevents labels from interfering with hover */
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .card {
+        padding: 12px;
+    }
+
+    .header {
+        font-size: 1.1rem;
+    }
+
+    .controlsContainer {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .dropdown {
+        width: 100%;
+    }
+
+    .chartContainer {
+        height: 200px;
+        /* Smaller height on mobile */
+    }
+
+    /* Adjust Pie chart for smaller screens */
+    .recharts-wrapper .recharts-pie text {
+        font-size: 10px !important;
+        /* Smaller label text */
+    }
+}
+
+/* Full-width card */
+.fullWidthCard {
+    grid-column: span 2;
+}

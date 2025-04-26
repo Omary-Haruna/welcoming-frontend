@@ -1,0 +1,95 @@
+.sidebar {
+    height: 100vh;
+    background-color: #f4f4f4;
+    transition: width 0.3s ease;
+    overflow: hidden;
+    border-right: 1px solid #ddd;
+    z-index: 1000;
+}
+
+
+.sidebarOpen,
+.sidebarHovered {
+    width: 200px;
+}
+
+.sidebarClosed {
+    width: 60px;
+}
+
+
+.sidebarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #e9e9e9;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Style for the pin toggle button */
+.pinBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.pinBtn:hover {
+    color: #666;
+}
+
+/* Main menu list */
+.menuList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Each menu item container */
+.menuItem {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Menu link styling */
+.menuLink {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    white-space: nowrap;
+    /* Prevent text wrapping */
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.menuLink:hover {
+    background-color: #ddd;
+}
+
+/* Submenu list styling */
+.subMenuList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-left: 20px;
+    border-left: 2px solid #ccc;
+}
+
+/* Submenu link styling */
+.subMenuLink {
+    display: block;
+    padding: 8px 15px;
+    text-decoration: none;
+    color: #555;
+    transition: background-color 0.3s ease;
+}
+
+.subMenuLink:hover {
+    background-color: #e0e0e0;
+}

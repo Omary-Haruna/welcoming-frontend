@@ -1,0 +1,53 @@
+.headerContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    background-color: #f9fafb;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.textGroup {
+    text-align: center;
+}
+
+.greeting {
+    font-size: 1.25rem;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.userName {
+    font-weight: 700;
+    color: #111827;
+}
+
+.pageTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 0.25rem;
+}
+
+@media (min-width: 640px) {
+    .headerContainer {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 2rem;
+    }
+
+    .textGroup {
+        text-align: left;
+    }
+
+    .greeting {
+        font-size: 1.5rem;
+    }
+
+    .pageTitle {
+        font-size: 2.5rem;
+    }
+}

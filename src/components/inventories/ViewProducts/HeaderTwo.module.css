@@ -1,0 +1,55 @@
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    animation: fadeIn 0.6s ease-in-out;
+    padding: 8px 0;
+}
+
+.card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.label {
+    font-size: 0.85rem;
+    color: #888;
+    display: block;
+    margin-bottom: 6px;
+    opacity: 0.9;
+}
+
+.value {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #111827;
+    transition: color 0.3s ease;
+}
+
+.card:hover .value {
+    color: #2563eb;
+}
+
+/* Entry animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

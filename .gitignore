@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+.cache/
+.env
+.DS_Store
+*.log
+public/*.png
+public/*.jpg
+public/*.jpeg

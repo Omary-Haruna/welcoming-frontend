@@ -1,0 +1,143 @@
+.card {
+    grid-area: totalSales;
+    background-color: #f8fbff;
+    color: #333;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 80px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+
+}
+
+/* Card header */
+.header {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Button group */
+.buttonGroup {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* Button styling */
+.button {
+    padding: 10px;
+    background: none;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: 500;
+    position: relative;
+    transition: color 0.3s ease;
+    color: var(--main-text-color);
+}
+
+.button::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -5px;
+    width: 0;
+    height: 3px;
+    background-color: transparent;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.button:hover {
+    opacity: 0.8;
+}
+
+/* Underline colors for each selection */
+.today.active::after {
+    width: 100%;
+    background-color: #ffcc00;
+    /* Yellow for Today */
+}
+
+.oneWeek.active::after {
+    width: 100%;
+    background-color: #17a2b8;
+    /* Cyan for 1 Week */
+}
+
+.oneMonth.active::after {
+    width: 100%;
+    background-color: #ff33aa;
+    /* Pink for 1 Month */
+}
+
+/* Selected button */
+.button.active {
+    font-weight: 700;
+}
+
+/* Sales Text */
+.salesText {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    border-radius: 12px;
+    width: 100%;
+    background: linear-gradient(135deg, #007bff, #00c6ff);
+    /* Blue gradient */
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    margin-top: 10px;
+}
+
+/* Dropdown group */
+.dropdownGroup {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: space-between;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .header {
+        font-size: 1.4rem;
+    }
+
+    .button {
+        font-size: 0.9rem;
+    }
+
+    .salesText {
+        font-size: 1.6rem;
+    }
+}
+
+.seeMoreLink {
+    display: block;
+    font-size: 1rem;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0;
+}
+
+.seeMoreLink:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}

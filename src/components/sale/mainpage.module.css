@@ -1,0 +1,108 @@
+.mainPage {
+    grid-area: mainPage;
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Filters */
+.filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.filterGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.filterGroup label {
+    font-size: 0.9rem;
+    color: #374151;
+    margin-bottom: 0.3rem;
+}
+
+.filterGroup input,
+.filterGroup select {
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+}
+
+/* Table */
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+.table thead {
+    background-color: #f3f4f6;
+}
+
+.table th,
+.table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.95rem;
+}
+
+.noData {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 1rem;
+    padding: 2rem 0;
+}
+
+/* Buttons */
+.table button {
+    padding: 0.4rem 0.75rem;
+    margin-right: 0.3rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.view {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.delete {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.print {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+@media (max-width: 768px) {
+    .filters {
+        grid-template-columns: 1fr;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.6rem;
+    }
+}

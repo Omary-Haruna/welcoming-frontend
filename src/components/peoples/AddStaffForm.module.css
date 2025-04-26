@@ -1,0 +1,156 @@
+.formContainer {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.formTitle {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.sectionTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-top: 1rem;
+}
+
+.inputGroup {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.inputField {
+    display: flex;
+    flex-direction: column;
+}
+
+.inputField input,
+.inputField select {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.inputField input:focus,
+.inputField select:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+}
+
+.dropdownContainer {
+    position: relative;
+}
+
+.dropdownToggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    background-color: #f9fafb;
+    transition: background-color 0.3s;
+}
+
+.dropdownToggle:hover {
+    background-color: #f3f4f6;
+}
+
+.dropdownMenu {
+    position: relative;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dropdownMenu label {
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.submitButton {
+    background-color: #4f46e5;
+    color: white;
+    padding: 0.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+}
+
+.submitButton:hover {
+    background-color: #4338ca;
+}
+
+.tutorialButton {
+    background-color: transparent;
+    border: 1px solid #4f46e5;
+    color: #4f46e5;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 0 auto;
+    /* Center horizontally */
+}
+
+
+.tutorialButton:hover {
+    background-color: #eef2ff;
+}
+
+@media screen and (max-width: 600px) {
+    .formContainer {
+        padding: 1.5rem;
+    }
+
+    .formTitle {
+        font-size: 1.3rem;
+    }
+
+    .sectionTitle {
+        font-size: 1rem;
+    }
+
+    .dropdownMenu {
+        grid-template-columns: 1fr;
+        max-height: 180px;
+    }
+
+    .submitButton {
+        font-size: 0.95rem;
+    }
+}

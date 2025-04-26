@@ -1,0 +1,95 @@
+.card {
+    grid-area: recentProducts;
+    background-color: #f8fbff;
+    color: #333;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    box-sizing: border-box;
+    overflow: hidden;
+    margin: auto;
+}
+
+
+/* Card heading */
+.heading {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+/* Product list */
+.productList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Product item */
+.productItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Product name */
+.productName {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Product price */
+.productPrice {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2ecc71;
+}
+
+/* Total stock */
+.totalStock {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+    padding-top: 20px;
+}
+
+/* View all link */
+.viewAllLink {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.viewAllLink:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .heading {
+        font-size: 1.2rem;
+    }
+
+    .productName,
+    .productPrice {
+        font-size: 0.9rem;
+    }
+
+    .totalStock {
+        font-size: 1rem;
+    }
+}

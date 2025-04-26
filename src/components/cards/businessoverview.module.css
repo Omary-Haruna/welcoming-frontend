@@ -1,0 +1,65 @@
+.card {
+    grid-area: businessoverview;
+    background-color: #f8fbff;
+    color: #333;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+
+}
+
+.cardHeader {
+    text-align: center;
+}
+
+.cardHeader h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.overviewContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.infoBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.infoBox h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.infoBox p {
+    font-size: 1.25rem;
+    margin-top: 8px;
+}
+
+.link {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 1rem;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}

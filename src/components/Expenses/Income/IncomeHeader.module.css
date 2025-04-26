@@ -1,0 +1,51 @@
+.header {
+    background: linear-gradient(135deg, #007cf0, #00dfd8);
+    /* 💙 Blue gradient */
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.icon {
+    color: #fff;
+}
+
+.title {
+    font-size: 2rem;
+    margin: 0;
+    font-weight: 700;
+}
+
+.subtitle {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .header {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.9rem;
+    }
+
+    .logo {
+        flex-direction: column;
+    }
+}

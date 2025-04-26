@@ -1,0 +1,58 @@
+/* Wrapper for header actions */
+.headerActionsWrapper {
+    position: relative;
+}
+
+/* Default actions styles (visible on large screens) */
+.actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* Three-dot menu button */
+.menuButton {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1;
+
+}
+
+/* On small screens (max-width: 800px), show the three-dot button */
+@media (max-width: 800px) {
+    .actions {
+        display: none;
+        /* Hide actions by default */
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        background-color: white;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .actions button {
+        color: black;
+        border: none;
+        padding: 1px;
+        border-radius: 5px;
+        cursor: pointer;
+
+
+    }
+
+    .menuButton {
+        display: block;
+        /* Show the three-dot button */
+    }
+
+    .actions.show {
+        display: flex;
+        /* Only show actions when the state is true */
+    }
+}

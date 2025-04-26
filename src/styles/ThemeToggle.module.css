@@ -1,0 +1,20 @@
+/* ThemeToggle.module.css */
+.iconButton {
+    transition: color 0.3s ease;
+    /* Smooth transition */
+}
+
+.iconButton.lightMode {
+    color: #000;
+    /* Light mode button color */
+}
+
+.iconButton.darkMode {
+    color: #fff;
+    /* Dark mode button color */
+}
+
+.iconButton:hover {
+    color: #f5a623;
+    /* Hover color (can adjust) */
+}

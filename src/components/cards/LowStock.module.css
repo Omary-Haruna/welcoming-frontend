@@ -1,0 +1,99 @@
+.card {
+    grid-area: lowStocks;
+    background-color: #f8fbff;
+    color: #333;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    box-sizing: border-box;
+    overflow: hidden;
+
+}
+
+.header {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.productCount {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.productList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.productItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.productName {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.stockInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stock {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #d9534f;
+    /* Red color to indicate low stock */
+}
+
+.warningIcon {
+    color: #d9534f;
+    font-size: 1.2rem;
+}
+
+.seeAllLink {
+    font-size: 1rem;
+    color: #007bff;
+    text-decoration: none;
+    margin-top: 20px;
+    font-weight: 500;
+    text-align: center;
+    transition: color 0.3s ease;
+}
+
+.seeAllLink:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .productItem {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .productName {
+        font-size: 1.1rem;
+    }
+
+    .stockInfo {
+        margin-top: 10px;
+    }
+}

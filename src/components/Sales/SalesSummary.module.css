@@ -1,0 +1,117 @@
+/* SalesSummary.module.css */
+
+.container {
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 1rem;
+    max-width: 1000px;
+    margin: 2rem auto;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: all 0.3s ease;
+}
+
+.title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    color: #1f2937;
+}
+
+.empty {
+    text-align: center;
+    font-size: 1rem;
+    color: #6b7280;
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+    background: #f9fafb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.table thead {
+    background-color: #f3f4f6;
+}
+
+.table th,
+.table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.95rem;
+    vertical-align: top;
+}
+
+.table th {
+    font-weight: 600;
+    color: #374151;
+}
+
+.row:hover {
+    background-color: #fefefe;
+    transition: background-color 0.2s;
+}
+
+.itemList {
+    padding-left: 0;
+    margin: 0;
+    list-style: none;
+    color: #4b5563;
+    font-size: 0.9rem;
+}
+
+.totalRow {
+    background-color: #f3f4f6;
+    font-weight: bold;
+    color: #111827;
+}
+
+.mobileCards {
+    display: none;
+}
+
+.cardMobile {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    font-size: 0.95rem;
+}
+
+.cardMobile p {
+    margin: 0.25rem 0;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .table {
+        display: none;
+    }
+
+    .mobileCards {
+        display: block;
+    }
+
+    .itemList {
+        font-size: 0.85rem;
+    }
+}

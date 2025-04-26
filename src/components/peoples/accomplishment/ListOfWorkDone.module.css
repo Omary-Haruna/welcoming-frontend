@@ -1,0 +1,130 @@
+.tableContainer {
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.5rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.table th {
+    font-weight: 600;
+    background-color: #f9f9f9;
+}
+
+.total {
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+/* Pagination container */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.5rem;
+}
+
+/* Pagination button base */
+.pagination button {
+    background-color: #f1f5f9;
+    border: none;
+    padding: 0.5rem 0.9rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Hover effect */
+.pagination button:hover:not(:disabled) {
+    background-color: #e0e7ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Disabled button */
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Active page */
+.activePage {
+    background-color: #3b82f6;
+    color: rgb(0, 0, 0) !important;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+    transform: scale(1.05);
+}
+
+/* Make icons animate when clicked */
+.pagination button svg {
+    transition: transform 0.2s ease;
+}
+
+.pagination button:active svg {
+    transform: scale(0.9);
+}
+
+
+/* Card View for Mobile */
+.cardView {
+    display: none;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cardTitle {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.cardField {
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+}
+
+/* Show cards and hide table on small screens */
+@media (max-width: 767px) {
+    .tableContainer {
+        display: none;
+    }
+
+    .cardView {
+        display: block;
+    }
+}
+
+.cardContainer {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .cardContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+}

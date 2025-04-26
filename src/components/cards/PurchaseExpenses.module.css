@@ -1,0 +1,98 @@
+.card {
+    grid-area: purchaseExpenses;
+    background-color: #f8fbff;
+    color: #333;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
+
+}
+
+.heading {
+    font-size: 1.6rem;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.dropdownGroup {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.dropdown {
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    background-color: #fff;
+}
+
+.dropdown:focus {
+    border-color: #007bff;
+}
+
+.expenseDisplay {
+    margin-bottom: 15px;
+    width: 100%;
+    text-align: center;
+}
+
+.expenseTotal {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #007bff;
+    padding: 55px;
+    background: linear-gradient(135deg, #e0f7fa, #80deea);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+    margin: 0 auto;
+}
+
+.seeMoreLink {
+    display: block;
+    font-size: 1rem;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0;
+}
+
+.seeMoreLink:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .heading {
+        font-size: 1.4rem;
+    }
+
+    .dropdown {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+
+    .expenseTotal {
+        font-size: 1.6rem;
+        padding: 10px;
+    }
+}

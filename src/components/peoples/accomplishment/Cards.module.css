@@ -1,0 +1,65 @@
+.cardContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.card {
+    background-color: white;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.specialCard {
+    background: linear-gradient(to right, #e0f7fa, #f1f8e9);
+}
+
+.blurTitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    /* Back to gray */
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.blurNumber {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #111;
+}
+
+.emoji {
+    font-size: 1.25rem;
+}
+
+.blurNumber {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #0070f3;
+    /* 
+    Changed to blue */
+}
+
+.icon {
+    margin-right: 0.4rem;
+    vertical-align: middle;
+}
+
+.reason {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    display: block;
+    margin-top: 0.2rem;
+}
+
+.improvement {
+    font-size: 1.2rem;
+    color: #0070f3;
+    /* Tailwind's gray-500 */
+}

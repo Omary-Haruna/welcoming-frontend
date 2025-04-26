@@ -1,0 +1,145 @@
+.container {
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    animation: fadeIn 0.6s ease;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #1a1a1a;
+    animation: slideInDown 0.5s ease;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+    animation: fadeIn 0.6s ease;
+}
+
+.table th,
+.table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+    transition: background-color 0.2s ease;
+}
+
+.table thead tr {
+    background-color: #f5faff;
+}
+
+.row:hover {
+    background-color: #eaf6ff;
+    transition: background-color 0.2s ease;
+}
+
+.type {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.totalRow {
+    font-weight: bold;
+    background-color: #f0f4ff;
+    color: #007bff;
+    border-top: 2px solid #007bff;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.actions button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+    transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.actions button:hover {
+    background-color: #e3f2ff;
+    transform: translateY(-2px);
+}
+
+.actions button:active {
+    transform: scale(0.96);
+    background-color: #d0eaff;
+}
+
+/* 🔄 Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Container for search and filters */
+.filterContainer {
+    margin-bottom: 1rem;
+}
+
+/* Search bar styling */
+.searchBar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    background-color: #fafafa;
+}
+
+.searchBar input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    background-color: transparent;
+}
+
+/* Filters styling */
+.filters {
+    display: flex;
+    gap: 1rem;
+}
+
+.filters input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    background-color: #fafafa;
+}

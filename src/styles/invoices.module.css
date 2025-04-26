@@ -1,0 +1,181 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+    background-color: #f5f7fa;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.header {
+    width: 100%;
+    padding: 1.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    top: 0;
+    z-index: 10;
+    animation: slideInDown 0.5s ease-out;
+}
+
+.summary {
+    width: 100%;
+    padding: 1.5rem;
+    background-color: #ffffff;
+    margin: 1rem 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    animation: slideInUp 0.5s ease-out 0.2s forwards;
+    opacity: 0;
+}
+
+.mainSplit {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+    width: 100%;
+    animation: slideInUp 0.5s ease-out 0.4s forwards;
+    opacity: 0;
+}
+
+.mainOne,
+.mainTwo {
+    flex: 1;
+    width: 100%;
+    min-height: 200px;
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mainOne:hover,
+.mainTwo:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+    width: 100%;
+    padding: 1.5rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    margin: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    animation: slideInUp 0.5s ease-out 0.6s forwards;
+    opacity: 0;
+}
+
+.finalLayer {
+    width: 100%;
+    padding: 1.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    animation: slideInUp 0.5s ease-out 0.8s forwards;
+    opacity: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive Design for Tablets */
+@media (min-width: 768px) {
+    .mainSplit {
+        flex-direction: row;
+        gap: 1.5rem;
+    }
+
+    .mainOne,
+    .mainTwo {
+        flex: 1;
+        width: 50%;
+        min-height: 300px;
+    }
+
+    .container {
+        padding: 0 2rem;
+    }
+}
+
+/* Responsive Design for Desktops */
+@media (min-width: 1024px) {
+    .container {
+        padding: 0 4rem;
+    }
+
+    .header,
+    .summary,
+    .table,
+    .finalLayer {
+        padding: 2rem;
+    }
+
+    .mainSplit {
+        gap: 2rem;
+    }
+
+    .mainOne,
+    .mainTwo {
+        min-height: 350px;
+        width: 50%;
+    }
+}
+
+/* Mobile Devices */
+@media (max-width: 767px) {
+    .container {
+        padding: 0 1rem;
+    }
+
+    .header,
+    .summary,
+    .table,
+    .finalLayer {
+        padding: 1rem;
+    }
+
+    .mainSplit {
+        padding: 1rem;
+    }
+
+    .mainOne,
+    .mainTwo {
+        padding: 1rem;
+        min-height: 150px;
+        width: 100%;
+    }
+}

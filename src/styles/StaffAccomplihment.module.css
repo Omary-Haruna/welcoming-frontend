@@ -1,0 +1,54 @@
+.container {
+  display: grid;
+  grid-template-areas:
+    "header"
+    "cards"
+    "search"
+    "list"
+    "bottom";
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  /* center on large screens */
+}
+
+/* Bottom section layout: ManualTask + Motivation */
+.bottom {
+  display: grid;
+  grid-template-areas: "manual motivation";
+  grid-template-columns: 1fr 1fr;
+  /* ManualTask wider */
+  gap: 1rem;
+  align-items: start;
+}
+
+/* Medium screens (tablets) */
+@media (max-width: 992px) {
+  .bottom {
+    grid-template-columns: 1.5fr 1fr;
+  }
+}
+
+/* Small screens (mobile) */
+@media (max-width: 768px) {
+  .bottom {
+    grid-template-areas:
+      "manual"
+      "motivation";
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Very small devices */
+@media (max-width: 480px) {
+  .container {
+    padding: 0.5rem;
+    gap: 0.75rem;
+  }
+
+  .bottom {
+    gap: 0.75rem;
+  }
+}

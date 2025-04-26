@@ -1,0 +1,57 @@
+.invoiceTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.invoiceTable th,
+.invoiceTable td {
+    border: 1px solid #e0e0e0;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.invoiceTable thead {
+    background-color: #f5f5f5;
+    font-weight: 600;
+}
+
+.clickableRow {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.clickableRow:hover {
+    background-color: #f0f8ff;
+}
+
+.expanded {
+    background-color: #e3f2fd;
+}
+
+.expandedRow td {
+    padding: 0;
+    background-color: #fafafa;
+    border: none;
+}
+
+.expandedContent {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 1rem 1.5rem;
+    background-color: #fafafa;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.block {
+    min-width: 240px;
+    flex: 1;
+}
+
+.block h4 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: #1e88e5;
+}

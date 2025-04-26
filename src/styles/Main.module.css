@@ -1,0 +1,95 @@
+/* Main content area */
+.main {
+    grid-area: main;
+    background-color: var(--main-bg);
+    color: var(--main-text-color);
+    padding: 40px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    max-height: 100vh;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge, and Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+
+}
+
+
+/* Responsive grid container with grid template areas */
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: stretch;
+    grid-template-areas:
+        "introducerole introducerole introducerole"
+        "totalSales purchaseExpenses businessoverview"
+        "lowStocks profits ."
+        "recentProducts outOfStockOrders ."
+        "staticStats staticStats .";
+}
+
+
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive layout for different screen sizes */
+
+/* Layout for medium-sized screens (tablets and below) */
+@media (max-width: 1024px) {
+    .gridContainer {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-areas:
+            "introducerole introducerole"
+            "businessoverview businessoverview"
+            "totalSales profits"
+            "recentProducts outOfStockOrders"
+            "lowStocks purchaseExpenses"
+            "staticStats staticStats";
+    }
+}
+
+/* Layout for small screen devices (phones) */
+@media (max-width: 768px) {
+    .gridContainer {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "introducerole"
+            "businessoverview"
+            "totalSales"
+            "profits"
+            "recentProducts"
+            "outOfStockOrders"
+            "lowStocks"
+            "purchaseExpenses"
+            "staticStats";
+    }
+
+    .main {
+        font-size: 1rem;
+        padding: 15px;
+    }
+
+    /* Adjust card padding and margin on small screens */
+    .card {
+        padding: 15px;
+    }
+}
+
+/* Hover effect on card */
+.cardWrapper:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}

@@ -1,0 +1,122 @@
+.card {
+    grid-area: outOfStockOrders;
+    background-color: #f8fbff;
+    color: #333;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+
+}
+
+
+/* Card heading */
+.heading {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Product list */
+.productList {
+    margin-bottom: 20px;
+}
+
+/* Product item */
+.productItem {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 12px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.productItem:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Product details */
+.productName,
+.productQuantity,
+.productReason {
+    font-size: 1rem;
+    color: #333;
+}
+
+.productName {
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.productName:hover {
+    color: #007bff;
+}
+
+.productQuantity {
+    font-weight: 500;
+    color: #e74c3c;
+    /* Red for indicating out of stock */
+}
+
+.productReason {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+/* Pending Orders */
+.pendingOrders {
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    color: #007bff;
+    margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .heading {
+        font-size: 1.2rem;
+    }
+
+    .productItem {
+        padding: 10px;
+    }
+
+    .productName,
+    .productQuantity,
+    .productReason {
+        font-size: 0.9rem;
+    }
+
+    .pendingOrders {
+        font-size: 1rem;
+    }
+}
+
+/* See All Link */
+.seeAllLink {
+    display: block;
+    font-size: 1rem;
+    color: #007bff;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 15px;
+    transition: color 0.3s ease;
+}
+
+.seeAllLink:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}

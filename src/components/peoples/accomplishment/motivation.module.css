@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+.motivationContainer {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    animation: fadeSlideIn 2s ease-in-out;
+    overflow: hidden;
+}
+
+.quote {
+    font-family: 'Pacifico', cursive;
+    font-size: 2.4rem;
+    color: #1a62de;
+    line-height: 1.6;
+    flex-wrap: wrap;
+    z-index: 2;
+    position: relative;
+}
+
+.danceWord {
+    display: inline-block;
+    animation: dance 14s ease-in-out infinite;
+    /* Reduced speed here */
+    transform-origin: center;
+}
+
+/* Rotating Icon */
+.iconWrapper {
+    position: absolute;
+    width: 10rem;
+    height: 10rem;
+    border-radius: 50%;
+    animation: spin 10s linear infinite;
+    z-index: 1;
+}
+
+.rotatingIcon {
+    color: gold;
+    font-size: 2rem;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Animations */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes dance {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg) scale(1);
+    }
+
+    25% {
+        transform: translateY(-10px) rotate(-3deg) scale(1.05);
+    }
+
+    50% {
+        transform: translateY(0px) rotate(3deg) scale(1);
+    }
+
+    75% {
+        transform: translateY(-6px) rotate(-2deg) scale(1.03);
+    }
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Font Sizes */
+@media (max-width: 768px) {
+    .quote {
+        font-size: 1.8rem;
+    }
+
+    .iconWrapper {
+        width: 7rem;
+        height: 7rem;
+    }
+
+    .rotatingIcon {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .quote {
+        font-size: 1.4rem;
+    }
+}
