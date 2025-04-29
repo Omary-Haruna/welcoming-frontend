@@ -1,4 +1,4 @@
-// src/pages/index.tsx
+import { API_BASE_URL } from '../config';
 import { useState, FormEvent, useContext } from 'react';
 import { useRouter } from 'next/router';
 import { AuthContext } from '../context/AuthContext';
@@ -11,6 +11,7 @@ const HomePage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false); // 👈 loading state for login
 
     const { login } = useContext(AuthContext);
     const router = useRouter();
@@ -36,7 +37,7 @@ const HomePage = () => {
         }
 
         try {
-            const res = await fetch('/api/auth/register', {
+            const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password }),
@@ -98,30 +99,23 @@ const HomePage = () => {
     /* ───────── LOGIN ───────── */
     const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
+        setLoading(true); // 👈 start loading
+
         try {
-            const res = await fetch('http://localhost:4000/api/auth/login', {
+            const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
             });
 
             if (res.ok) {
-                const { token, user } = await res.json(); // user.name will be used for greeting
-                login(token); // ✅ store token + role only
-
-                const hour = new Date().getHours();
-                const timeGreeting =
-                    hour < 12
-                        ? 'Good morning ☀️'
-                        : hour < 17
-                            ? 'Good afternoon ☀️'
-                            : 'Good evening 🌙';
+                const { token, user } = await res.json();
+                login(token);
 
                 router.push({
                     pathname: '/dashboard',
                     query: { justLoggedIn: 'true', name: user.name },
                 });
-
             } else {
                 const { error } = await res.json();
                 await Swal.fire({
@@ -153,13 +147,15 @@ const HomePage = () => {
                 showClass: { popup: 'animate__animated animate__fadeInDown' },
                 hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             });
+        } finally {
+            setLoading(false); // 👈 stop loading
         }
     };
-
 
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>Welcome to My App</h1>
+
             <div className={styles.tabButtons}>
                 <button
                     onClick={() => setIsLogin(false)}
@@ -193,8 +189,8 @@ const HomePage = () => {
                         required
                         className={styles.input}
                     />
-                    <button type="submit" className={styles.submitButton}>
-                        Log In
+                    <button type="submit" className={styles.submitButton} disabled={loading}>
+                        {loading ? "Logging in..." : "Log In"}
                     </button>
                 </form>
             ) : (

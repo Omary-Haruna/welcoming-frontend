@@ -1,24 +1,22 @@
 // src/components/ProtectedRoute.tsx
 import { useContext, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { AuthContext } from '../context/AuthContext';
-import Loader from './Loader';
-
-const PUBLIC_ROUTES = ['/'];
+import { useRouter } from 'next/router';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    const { token, loadingUser } = useContext(AuthContext);
+    const { token, loading } = useContext(AuthContext);
     const router = useRouter();
-    const isPublic = PUBLIC_ROUTES.includes(router.pathname);
 
     useEffect(() => {
-        if (!loadingUser && !token && !isPublic) {
-            router.replace('/');
+        if (!loading && !token) {
+            router.push('/');
         }
-    }, [loadingUser, token, isPublic, router]);
+    }, [token, loading, router]);
 
-    if (loadingUser) return <Loader />;
-    if (!token && !isPublic) return null;
+    if (loading) {
+        // You can show a loading spinner or nothing
+        return <div>Loading...</div>;
+    }
 
     return <>{children}</>;
 }

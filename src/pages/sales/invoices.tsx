@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import Header from '../../components/sales/invoice/Header';
-import MainOne from '../../components/sales/invoice/MainOne';
-import MainTwo from '../../components/sales/invoice/MainTwo';
-import Table from '../../components/sales/invoice/Table';
-import FinalLayer from '../../components/sales/invoice/FinalLayer';
-import InvoicesSummary from '../../components/sales/invoice/InvoicesSummary';
-import styles from '../../styles/invoices.module.css';
+//import Header from '../../components/sales/invoice/Header';
+//import MainOne from '../../components/sales/invoice/MainOne';
+//import MainTwo from '../../components/sales/invoice/MainTwo';
+//import Table from '../../components/sales/invoice/Table';
+//import FinalLayer from '../../components/sales/invoice/FinalLayer';
+//import InvoicesSummary from '../../components/sales/invoice/InvoicesSummary';
+//import styles from '../../styles/invoices.module.css';
 
 export default function InvoicesPage() {
     const [showForm, setShowForm] = useState(false);

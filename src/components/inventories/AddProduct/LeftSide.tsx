@@ -2,14 +2,14 @@ import React, { useState, useRef } from 'react';
 import styles from './LeftSide.module.css';
 import { Download, Upload, Image } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { v4 as uuidv4 } from 'uuid'; // ✅ UUID import
+import { v4 as uuidv4 } from 'uuid';
+import Swal from 'sweetalert2';
 
 interface LeftSideProps {
-    setProducts: React.Dispatch<React.SetStateAction<any[]>>;
+    fetchProducts: () => void;
 }
 
-export default function LeftSide({ setProducts }: LeftSideProps) {
-    const [showDropdown, setShowDropdown] = useState(false);
+export default function LeftSide({ fetchProducts }: LeftSideProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
     const [localImages, setLocalImages] = useState<{ [filename: string]: string }>({});
@@ -23,58 +23,54 @@ export default function LeftSide({ setProducts }: LeftSideProps) {
         images: [] as string[],
     });
 
-    const toggleDropdown = () => setShowDropdown(!showDropdown);
-    const handleImportClick = () => fileInputRef.current?.click();
-    const triggerImageUpload = () => imageInputRef.current?.click();
-
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleFormSubmit = (e: React.FormEvent) => {
+    const triggerImageUpload = () => imageInputRef.current?.click();
+    const handleImportClick = () => fileInputRef.current?.click();
+
+    const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const newProduct = {
-            id: uuidv4(), // ✅ Unique ID
+            id: uuidv4(),
             ...formData,
             image: formData.images[0] || '',
             images: formData.images,
         };
 
-        setProducts((prev) => [...prev, newProduct]);
+        try {
+            const res = await fetch('https://welcoming-backend.onrender.com/api/products/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newProduct),
+            });
 
-        setFormData({
-            name: '',
-            category: '',
-            buyingPrice: '',
-            sellingPrice: '',
-            quantity: '',
-            images: [],
-        });
-    };
-
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (!files) return;
-
-        const imageMap: { [filename: string]: string } = {};
-        let loaded = 0;
-
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                if (reader.result) {
-                    imageMap[file.name] = reader.result as string;
-                    loaded++;
-                    if (loaded === files.length) {
-                        setLocalImages(prev => ({ ...prev, ...imageMap }));
-                        console.log('📸 Local images loaded:', imageMap);
-                    }
-                }
-            };
-            reader.readAsDataURL(file);
-        });
+            const data = await res.json();
+            if (data.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Product Added',
+                    text: `${formData.name} was successfully added!`,
+                });
+                fetchProducts(); // ✅ Refresh product list in RightSide
+                setFormData({
+                    name: '',
+                    category: '',
+                    buyingPrice: '',
+                    sellingPrice: '',
+                    quantity: '',
+                    images: [],
+                });
+            } else {
+                Swal.fire('Error', 'Failed to save product.', 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            Swal.fire('Error', 'Server error.', 'error');
+        }
     };
 
     const handleExcelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,7 +78,7 @@ export default function LeftSide({ setProducts }: LeftSideProps) {
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
             const data = new Uint8Array(event.target?.result as ArrayBuffer);
             const workbook = XLSX.read(data, { type: 'array' });
             const sheetName = workbook.SheetNames[0];
@@ -91,27 +87,33 @@ export default function LeftSide({ setProducts }: LeftSideProps) {
 
             const enrichedProducts = jsonData.map((item) => {
                 let image = '';
-
-                if (item.Image?.startsWith('http')) {
-                    image = item.Image;
-                } else if (localImages[item.Image]) {
-                    image = localImages[item.Image];
-                } else if (item.Image) {
-                    image = '/' + item.Image;
-                }
+                if (item.Image?.startsWith('http')) image = item.Image;
+                else if (localImages[item.Image]) image = localImages[item.Image];
+                else if (item.Image) image = '/' + item.Image;
 
                 return {
-                    id: uuidv4(), // ✅ Unique ID
+                    id: uuidv4(),
                     name: item['Product Name'] || '',
                     category: item['Category'] || '',
                     buyingPrice: item['Buying Price'] || '',
                     sellingPrice: item['Selling Price'] || '',
                     quantity: item['Quantity'] || '',
-                    image: image,
+                    image,
+                    images: [image],
                 };
             });
 
-            setProducts(enrichedProducts);
+            // Save each product to DB
+            for (const product of enrichedProducts) {
+                await fetch('https://welcoming-backend.onrender.com/api/products/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(product),
+                });
+            }
+
+            Swal.fire('Imported!', 'Excel products imported successfully!', 'success');
+            fetchProducts(); // ✅ Refresh product list
         };
 
         reader.readAsArrayBuffer(file);
@@ -125,10 +127,9 @@ export default function LeftSide({ setProducts }: LeftSideProps) {
                 'Buying Price': 850000,
                 'Selling Price': 950000,
                 'Quantity': 10,
-                'Image': 'https://i0.wp.com/computer.co.tz/wp-content/uploads/2020/08/spectre.jpg?fit=900%2C900&ssl=1'
+                'Image': 'https://example.com/image.jpg'
             },
         ];
-
         const worksheet = XLSX.utils.json_to_sheet(worksheetData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Template');
@@ -151,22 +152,28 @@ export default function LeftSide({ setProducts }: LeftSideProps) {
                     </button>
                 </div>
 
-                <input
-                    type="file"
-                    accept=".xlsx, .xls"
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                    onChange={handleExcelUpload}
-                />
+                <input type="file" accept=".xlsx, .xls" ref={fileInputRef} style={{ display: 'none' }} onChange={handleExcelUpload} />
+                <input type="file" accept="image/*" multiple ref={imageInputRef} style={{ display: 'none' }} onChange={(e) => {
+                    const files = e.target.files;
+                    if (!files) return;
 
-                <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    style={{ display: 'none' }}
-                    ref={imageInputRef}
-                    onChange={handleImageUpload}
-                />
+                    const imagesArray: string[] = [];
+                    Array.from(files).forEach((file) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            if (reader.result) {
+                                imagesArray.push(reader.result as string);
+                                if (imagesArray.length === files.length) {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        images: [...prev.images, ...imagesArray],
+                                    }));
+                                }
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }} />
             </div>
 
             <div className={styles.main}>
@@ -174,90 +181,24 @@ export default function LeftSide({ setProducts }: LeftSideProps) {
                     <h3>Add New Product</h3>
 
                     <label>Product Name</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleFormChange}
-                        placeholder="e.g. HP Laptop 15s"
-                        required
-                    />
+                    <input type="text" name="name" value={formData.name} onChange={handleFormChange} required />
 
                     <label>Category</label>
-                    <input
-                        type="text"
-                        name="category"
-                        value={formData.category}
-                        onChange={handleFormChange}
-                        placeholder="e.g. Laptops"
-                        required
-                    />
+                    <input type="text" name="category" value={formData.category} onChange={handleFormChange} required />
 
                     <label>Buying Price</label>
-                    <input
-                        type="number"
-                        name="buyingPrice"
-                        value={formData.buyingPrice}
-                        onChange={handleFormChange}
-                        placeholder="e.g. 850000"
-                        required
-                    />
+                    <input type="number" name="buyingPrice" value={formData.buyingPrice} onChange={handleFormChange} required />
 
                     <label>Selling Price</label>
-                    <input
-                        type="number"
-                        name="sellingPrice"
-                        value={formData.sellingPrice}
-                        onChange={handleFormChange}
-                        placeholder="e.g. 950000"
-                        required
-                    />
+                    <input type="number" name="sellingPrice" value={formData.sellingPrice} onChange={handleFormChange} required />
 
                     <label>Quantity</label>
-                    <input
-                        type="number"
-                        name="quantity"
-                        value={formData.quantity}
-                        onChange={handleFormChange}
-                        placeholder="e.g. 10"
-                        required
-                    />
+                    <input type="number" name="quantity" value={formData.quantity} onChange={handleFormChange} required />
 
                     <label>Product Images</label>
                     <button type="button" onClick={triggerImageUpload} className={styles.uploadButton}>
-                        <Image size={18} />
-                        Choose Images
+                        <Image size={18} /> Choose Images
                     </button>
-
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        ref={imageInputRef}
-                        style={{ display: 'none' }}
-                        onChange={(e) => {
-                            const files = e.target.files;
-                            if (!files) return;
-
-                            const imagesArray: string[] = [];
-
-                            Array.from(files).forEach((file) => {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                    if (reader.result) {
-                                        imagesArray.push(reader.result as string);
-                                        if (imagesArray.length === files.length) {
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                images: [...prev.images, ...imagesArray],
-                                            }));
-                                        }
-                                    }
-                                };
-                                reader.readAsDataURL(file);
-                            });
-                        }}
-                    />
 
                     {formData.images.length > 0 && (
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>

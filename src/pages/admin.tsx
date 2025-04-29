@@ -3,15 +3,26 @@ import { AuthContext } from '../context/AuthContext';
 import { useRouter } from 'next/router';
 
 export default function AdminPage() {
-    const { user } = useContext(AuthContext);
+    const { token, role, loading } = useContext(AuthContext);
     const router = useRouter();
 
     useEffect(() => {
-        if (!user) return router.push('/login');
-        if (user.role !== 'admin') router.push('/dashboard');
-    }, [user]);
+        if (!loading) {
+            if (!token) {
+                router.push('/login');
+            } else if (role !== 'admin') {
+                router.push('/dashboard');
+            }
+        }
+    }, [token, role, loading, router]);
 
-    if (!user || user.role !== 'admin') return <p>Loading…</p>;
+    if (loading) {
+        return <p>Loading...</p>; // Show loading until AuthContext finishes
+    }
+
+    if (!token || role !== 'admin') {
+        return null; // Optional: can keep showing nothing after redirect
+    }
 
     return (
         <div style={{ padding: 20 }}>

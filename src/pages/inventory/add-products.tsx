@@ -1,71 +1,34 @@
-import { useState } from 'react';
-import styles from '../../styles/add-products.module.css';
+import { useEffect, useState } from 'react';
 import LeftSide from '../../components/inventories/AddProduct/LeftSide';
 import RightSide from '../../components/inventories/AddProduct/RightSide';
+import styles from '../../styles/add-products.module.css';
 
 export default function AddProducts() {
-    const [products, setProducts] = useState<any[]>([]);
+    const [products, setProducts] = useState([]);
 
-    // ✅ Edit Handler
-    const handleEdit = (index: number) => {
-        const product = products[index];
-        console.log("📝 Edit product:", product);
-        // You can show an edit modal or inline form here
-        alert(`Edit product: ${product.name}`);
-    };
-
-    // ✅ Delete Handler
-    const handleDelete = (index: number) => {
-        const confirmed = window.confirm("Are you sure you want to delete this product?");
-        if (confirmed) {
-            const updated = [...products];
-            updated.splice(index, 1);
-            setProducts(updated);
+    const fetchProducts = async () => {
+        try {
+            const res = await fetch('https://welcoming-backend.onrender.com/api/products/all');
+            const data = await res.json();
+            if (data.success) {
+                setProducts(data.products);
+            }
+        } catch (err) {
+            console.error('Failed to load products:', err);
         }
     };
 
-    // ✅ Upload Image Handler
-    const handleUploadImage = (index: number, file: File) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            if (reader.result) {
-                const updated = [...products];
-                updated[index].image = reader.result as string;
-                updated[index].images = [reader.result as string]; // optional for multiple
-                setProducts(updated);
-            }
-        };
-        reader.readAsDataURL(file);
-    };
+    useEffect(() => {
+        fetchProducts(); // Load at first
+    }, []);
 
     return (
         <div className={styles.container}>
             <div className={styles.left}>
-                <LeftSide setProducts={setProducts} />
+                <LeftSide fetchProducts={fetchProducts} />
             </div>
             <div className={styles.right}>
-                <RightSide
-                    products={products}
-                    onEdit={(updatedProducts) => setProducts(updatedProducts)}
-                    onDelete={(index) => {
-                        const updated = [...products];
-                        updated.splice(index, 1);
-                        setProducts(updated);
-                    }}
-                    onUploadImage={(index, file) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                            if (reader.result) {
-                                const updated = [...products];
-                                updated[index].image = reader.result as string;
-                                updated[index].images = [reader.result as string];
-                                setProducts(updated);
-                            }
-                        };
-                        reader.readAsDataURL(file);
-                    }}
-                />
-
+                <RightSide products={products} fetchProducts={fetchProducts} />
             </div>
         </div>
     );

@@ -1,4 +1,3 @@
-// src/components/Sidebar.tsx
 import React, { useState } from "react";
 import styles from "../styles/Sidebar.module.css";
 import Link from "next/link";
@@ -13,6 +12,7 @@ import {
     Inventory2,
     PointOfSale,
     MoneyOff,
+    Logout,
 } from "@mui/icons-material";
 
 interface MenuItemProps {
@@ -70,11 +70,8 @@ const Sidebar: React.FC = () => {
 
     const peopleSubItems = [
         { href: "/customer/CustomerManagement", text: "Customers" },
-        { href: "/peoples/Accomplishment/StaffPage", text: "Staff Members" },
         { href: "/peoples/staff/StaffAccomplishment", text: "Accomplishment" },
-        { href: "/peoples/staff/AddStaffMember", text: "Add Staff Member" },
     ];
-
 
     const inventorySubItems = [
         { href: "/inventory/add-products", text: "Add Product" },
@@ -91,7 +88,6 @@ const Sidebar: React.FC = () => {
     const salesSubItems = [
         { href: "/sales/new-sale", text: "New Sale" },
         { href: "/sales/sales-list", text: "Sales List" },
-        { href: "/sales/invoices", text: "Invoices" },
     ];
 
     const handlePinToggle = () => {
@@ -102,6 +98,11 @@ const Sidebar: React.FC = () => {
             }
             return newPinnedState;
         });
+    };
+
+    const handleLogout = () => {
+        localStorage.clear();
+        window.location.href = "/"; // Redirect to homepage or login
     };
 
     return (
@@ -124,6 +125,14 @@ const Sidebar: React.FC = () => {
                 <MenuItem text="Sales" icon={<PointOfSale />} isExpanded={isExpanded} subItems={salesSubItems} />
                 <MenuItem href="/settings" text="Settings" icon={<Settings />} isExpanded={isExpanded} />
             </ul>
+
+            {/* 🔒 Logout Button at Bottom */}
+            <div className={styles.logoutSection}>
+                <button onClick={handleLogout} className={styles.logoutBtn}>
+                    <Logout />
+                    {isExpanded && <span>Logout</span>}
+                </button>
+            </div>
         </div>
     );
 };

@@ -1,6 +1,6 @@
 // src/pages/staff/StaffPage.tsx
 import React, { useState } from 'react';
-import styles from '../../../styles/StaffPage.module.css';
+//import styles from '../../../styles/StaffPage.module.css';
 
 import AddStaffForm from '../../../components/peoples/AddStaffForm';
 import StaffTable from '../../../components/peoples/StaffTable';

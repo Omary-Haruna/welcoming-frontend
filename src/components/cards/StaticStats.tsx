@@ -15,9 +15,10 @@ import {
     YAxis,
     Legend,
 } from 'recharts';
+import { TooltipProps } from 'recharts'; // ✅ ADDED: For typing CustomTooltip
 
-// Custom tooltip component for better formatting
-const CustomTooltip = ({ active, payload, label }) => {
+// Custom tooltip component with correct types
+const CustomTooltip = ({ active, payload, label }: TooltipProps<any, any>) => {
     if (active && payload && payload.length) {
         return (
             <div className={styles.customTooltip}>
@@ -105,14 +106,13 @@ const StaticStats: React.FC = () => {
         },
     };
 
-    // Get the proper dataset based on selected period and category
     const chartData = data[period][category];
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28DFF', '#FF66B2', '#66FF66'];
 
     const chartTitle = `${category.charAt(0).toUpperCase() + category.slice(1)} - ${period.charAt(0).toUpperCase() + period.slice(1)}`;
 
     // Custom label renderer for Pie chart
-    const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+    const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }: any) => {
         const RADIAN = Math.PI / 180;
         const radius = outerRadius * 1.2;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -132,7 +132,6 @@ const StaticStats: React.FC = () => {
         );
     };
 
-    // Options for the custom dropdowns
     const periodOptions = [
         { value: 'week', label: 'Week' },
         { value: 'month', label: 'Month' },
