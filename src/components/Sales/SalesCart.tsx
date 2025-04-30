@@ -8,7 +8,9 @@ import { toast } from 'react-toastify';
 
 const SalesCart: React.FC = () => {
     const { cart, clearCart, removeFromCart, updateQuantity, setCart } = useCart();
-    const totalAmount = cart.reduce((sum, item) => sum + item.total, 0);
+
+    // ✅ Calculate total live (per item: quantity × price)
+    const totalAmount = cart.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
     // ✅ Load pending cart from backend on first mount
     useEffect(() => {
@@ -61,7 +63,11 @@ const SalesCart: React.FC = () => {
                 soldAt: new Date().toISOString(),
                 subtotal: totalAmount,
                 total: totalAmount,
-                items: cart,
+                items: cart.map(item => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    total: item.quantity * item.price,
+                })),
             };
 
             try {
@@ -76,8 +82,7 @@ const SalesCart: React.FC = () => {
                 if (data.success) {
                     toast.success('Checkout completed! ✅');
 
-                    // ✅ Clear both local cart and backend pending cart
-                    clearCart();
+                    clearCart(); // clear local cart
 
                     await fetch('https://welcoming-backend.onrender.com/api/pending-cart/clear', {
                         method: 'DELETE',
@@ -113,36 +118,39 @@ const SalesCart: React.FC = () => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        {cart.map((item, index) => (
-                            <motion.div
-                                key={`${item.id}-${index}`}
-                                className={styles.item}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                <button
-                                    className={styles.removeBtn}
-                                    onClick={() => removeFromCart(item.id)}
-                                    title="Remove item"
+                        {cart.map((item, index) => {
+                            const itemTotal = item.quantity * item.price;
+                            return (
+                                <motion.div
+                                    key={`${item.id}-${index}`}
+                                    className={styles.item}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.2 }}
                                 >
-                                    <X size={16} />
-                                </button>
+                                    <button
+                                        className={styles.removeBtn}
+                                        onClick={() => removeFromCart(item.id)}
+                                        title="Remove item"
+                                    >
+                                        <X size={16} />
+                                    </button>
 
-                                <img src={item.image} alt={item.name} className={styles.image} />
-                                <div className={styles.details}>
-                                    <strong>{item.name}</strong>
-                                    <div className={styles.qtyRow}>
-                                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
-                                        <span>{item.quantity}</span>
-                                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                                    <img src={item.image} alt={item.name} className={styles.image} />
+                                    <div className={styles.details}>
+                                        <strong>{item.name}</strong>
+                                        <div className={styles.qtyRow}>
+                                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
+                                            <span>{item.quantity}</span>
+                                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                                        </div>
+                                        <p>Price: ${item.price.toFixed(2)}</p>
+                                        <p>Total: ${itemTotal.toFixed(2)}</p>
                                     </div>
-                                    <p>Price: ${item.price.toFixed(2)}</p>
-                                    <p>Total: ${item.total.toFixed(2)}</p>
-                                </div>
-                            </motion.div>
-                        ))}
+                                </motion.div>
+                            );
+                        })}
 
                         <div className={styles.cartFooter}>
                             <div className={styles.total}>Total: ${totalAmount.toFixed(2)}</div>

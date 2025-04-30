@@ -15,6 +15,7 @@ interface CartContextType {
     clearCart: () => void;
     removeFromCart: (id: number) => void;
     updateQuantity: (id: number, quantity: number) => void;
+    setCart: (items: CartItem[]) => void; // for syncing from backend
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -36,7 +37,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                         : i
                 );
             }
-            return [...prev, item];
+            return [
+                ...prev,
+                {
+                    ...item,
+                    quantity: item.quantity || 1,
+                    total: (item.quantity || 1) * item.price,
+                },
+            ];
         });
     };
 
@@ -70,6 +78,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 clearCart,
                 removeFromCart,
                 updateQuantity,
+                setCart, // expose this for syncing from backend
             }}
         >
             {children}
@@ -79,6 +88,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
 export const useCart = () => {
     const context = useContext(CartContext);
-    if (!context) throw new Error('useCart must be used within a CartProvider');
+    if (!context) {
+        throw new Error('useCart must be used within a CartProvider');
+    }
     return context;
 };

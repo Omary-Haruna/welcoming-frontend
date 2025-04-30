@@ -4,6 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { toast } from 'react-toastify';
 import { Search } from 'lucide-react';
 import CustomDropdown from '../cards/CustomDropdown';
+import { v4 as uuidv4 } from 'uuid'; // 👈 add this import
 
 interface Product {
     _id: string;
@@ -68,10 +69,9 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                 </div>
 
                 <CustomDropdown
-                    options={[...new Set(products.map((p) => p.category))].map((cat) => ({
-                        value: cat,
-                        label: cat,
-                    })).concat({ value: 'All', label: 'All Categories' })}
+                    options={[...new Set(products.map((p) => p.category))]
+                        .map((cat) => ({ value: cat, label: cat }))
+                        .concat({ value: 'All', label: 'All Categories' })}
                     selected={category}
                     onChange={onCategoryChange}
                     placeholder="Select Category"
@@ -155,13 +155,13 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                             onClick={() => {
                                 const quantity = quantities[selectedProduct._id] ?? 1;
                                 const price = prices[selectedProduct._id] ?? selectedProduct.sellingPrice;
-                                const total = quantity * price;
 
                                 const cartItem = {
-                                    ...selectedProduct,
-                                    quantity,
+                                    id: uuidv4(), // 🔑 Unique each time
+                                    name: selectedProduct.name,
+                                    image: selectedProduct.image,
                                     price,
-                                    total,
+                                    quantity,
                                     customerName,
                                     customerPhone,
                                     paymentMethod,
@@ -170,6 +170,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                                 addToCart(cartItem);
                                 toast.success(`${selectedProduct.name} added to cart! ✅`);
 
+                                // Reset state
                                 setShowPopup(false);
                                 setSelectedProduct(null);
                                 setCustomerName('');
