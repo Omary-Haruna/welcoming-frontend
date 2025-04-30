@@ -1,7 +1,8 @@
-// src/pages/sales/summary.tsx
 import React, { useEffect, useState } from 'react';
 import styles from './SalesSummary.module.css';
 import { motion } from 'framer-motion';
+import { Pencil, Trash2 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 interface SaleItem {
     name: string;
@@ -10,6 +11,7 @@ interface SaleItem {
 }
 
 interface SaleSummary {
+    _id: string;
     soldAt: string;
     subtotal: number;
     total: number;
@@ -21,34 +23,55 @@ const SalesSummary: React.FC = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchSales = async () => {
-            try {
-                const res = await fetch('https://welcoming-backend.onrender.com/api/sales/all');
-                const data = await res.json();
-                if (data.success) {
-                    setSummaries(data.sales);
-                } else {
-                    console.error('Failed to load sales data');
-                }
-            } catch (err) {
-                console.error('Error fetching sales:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchSales();
     }, []);
 
-    const totalRevenue = summaries.reduce((acc, s) => acc + s.total, 0);
-    const totalQuantity = summaries.reduce(
-        (acc, s) => acc + s.items.reduce((sum, i) => sum + i.quantity, 0),
-        0
-    );
+    const fetchSales = async () => {
+        try {
+            const res = await fetch('https://welcoming-backend.onrender.com/api/sales/all');
+            const data = await res.json();
+            if (data.success) {
+                setSummaries(data.sales);
+            } else {
+                console.error('Failed to load sales data');
+            }
+        } catch (err) {
+            console.error('Error fetching sales:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    if (loading) {
-        return <p className={styles.loading}>Loading sales summary...</p>;
-    }
+    const handleDelete = async (id: string) => {
+        const confirm = await Swal.fire({
+            title: 'Delete Sale Record?',
+            text: 'This action cannot be undone!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+        });
+
+        if (confirm.isConfirmed) {
+            try {
+                const res = await fetch(`https://welcoming-backend.onrender.com/api/sales/${id}`, {
+                    method: 'DELETE',
+                });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire('Deleted!', 'Sale has been removed.', 'success');
+                    fetchSales();
+                } else {
+                    Swal.fire('Error!', 'Failed to delete sale.', 'error');
+                }
+            } catch (error) {
+                console.error('Delete failed:', error);
+            }
+        }
+    };
+
+    const formatTsh = (value: number) => `Tshs ${value.toLocaleString('en-TZ')}/-`;
+
+    if (loading) return <p className={styles.loading}>Loading sales summary...</p>;
 
     if (summaries.length === 0) {
         return (
@@ -68,30 +91,6 @@ const SalesSummary: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                {/* Mobile Cards */}
-                <div className={styles.mobileCards}>
-                    {summaries.map((summary, index) => (
-                        <div key={index} className={styles.cardMobile}>
-                            <p><strong>Sold At:</strong> {new Date(summary.soldAt).toLocaleString()}</p>
-                            <p><strong>Subtotal:</strong> ${summary.subtotal.toFixed(2)}</p>
-                            <p><strong>Total:</strong> ${summary.total.toFixed(2)}</p>
-                            <p><strong>Items:</strong></p>
-                            <ul className={styles.itemList}>
-                                {summary.items.map((item, i) => (
-                                    <li key={i}>
-                                        {item.name} × {item.quantity} = ${item.total.toFixed(2)}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                    <div className={styles.cardMobileTotal}>
-                        <h3>Total Revenue: ${totalRevenue.toFixed(2)}</h3>
-                        <h3>Total Quantity: {totalQuantity} items sold</h3>
-                    </div>
-                </div>
-
-                {/* Desktop Table */}
                 <table className={styles.table}>
                     <thead>
                         <tr>
@@ -99,30 +98,40 @@ const SalesSummary: React.FC = () => {
                             <th>Subtotal</th>
                             <th>Total</th>
                             <th>Items</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {summaries.map((summary, index) => (
-                            <tr key={index} className={styles.row}>
+                        {summaries.map((summary) => (
+                            <tr key={summary._id} className={styles.row}>
                                 <td>{new Date(summary.soldAt).toLocaleString()}</td>
-                                <td>${summary.subtotal.toFixed(2)}</td>
-                                <td>${summary.total.toFixed(2)}</td>
+                                <td>{formatTsh(summary.subtotal)}</td>
+                                <td>{formatTsh(summary.total)}</td>
                                 <td>
                                     <ul className={styles.itemList}>
                                         {summary.items.map((item, i) => (
                                             <li key={i}>
-                                                {item.name} × {item.quantity} = ${item.total.toFixed(2)}
+                                                {item.name} × {item.quantity} = {formatTsh(item.total)}
                                             </li>
                                         ))}
                                     </ul>
+                                </td>
+                                <td>
+                                    <button title="Edit (Coming soon)" disabled>
+                                        <Pencil size={16} />
+                                    </button>
+                                    <button onClick={() => handleDelete(summary._id)} title="Delete">
+                                        <Trash2 size={16} />
+                                    </button>
                                 </td>
                             </tr>
                         ))}
                         <tr className={styles.totalRow}>
                             <td><strong>Totals</strong></td>
                             <td></td>
-                            <td><strong>${totalRevenue.toFixed(2)}</strong></td>
-                            <td><strong>{totalQuantity} items sold</strong></td>
+                            <td><strong>{formatTsh(summaries.reduce((a, b) => a + b.total, 0))}</strong></td>
+                            <td><strong>{summaries.reduce((acc, s) => acc + s.items.reduce((sum, i) => sum + i.quantity, 0), 0)} items sold</strong></td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>
