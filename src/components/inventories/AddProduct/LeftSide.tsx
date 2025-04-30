@@ -1,18 +1,23 @@
+// src/components/inventories/AddProduct/LeftSide.tsx
 import React, { useState, useRef } from 'react';
 import styles from './LeftSide.module.css';
 import { Download, Upload, Image } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
+import axios from 'axios';
+import { BeatLoader } from 'react-spinners'; // ✨ NEW
 
 interface LeftSideProps {
     fetchProducts: () => void;
 }
 
+const CLOUDINARY_UPLOAD_PRESET = 'unsigned_upload';
+const CLOUDINARY_CLOUD_NAME = 'duaahnhgf';
+
 export default function LeftSide({ fetchProducts }: LeftSideProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
-    const [localImages, setLocalImages] = useState<{ [filename: string]: string }>({});
 
     const [formData, setFormData] = useState({
         name: '',
@@ -22,21 +27,44 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
         quantity: '',
         images: [] as string[],
     });
+    const [loading, setLoading] = useState(false); // ✨ NEW
+
+    const triggerImageUpload = () => imageInputRef.current?.click();
+    const handleImportClick = () => fileInputRef.current?.click();
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const triggerImageUpload = () => imageInputRef.current?.click();
-    const handleImportClick = () => fileInputRef.current?.click();
+    const uploadToCloudinary = async (fileOrUrl: File | string) => {
+        if (typeof fileOrUrl === 'string' && fileOrUrl.startsWith('http')) {
+            return fileOrUrl;
+        }
+
+        const formData = new FormData();
+        formData.append('file', fileOrUrl as File);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+        try {
+            const res = await axios.post(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, formData);
+            return res.data.secure_url;
+        } catch (error) {
+            console.error('Upload to Cloudinary failed:', error);
+            return '';
+        }
+    };
 
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const newProduct = {
             id: uuidv4(),
-            ...formData,
+            name: formData.name,
+            category: formData.category,
+            buyingPrice: formData.buyingPrice,
+            sellingPrice: formData.sellingPrice,
+            quantity: formData.quantity,
             image: formData.images[0] || '',
             images: formData.images,
         };
@@ -50,20 +78,9 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
 
             const data = await res.json();
             if (data.success) {
-                await Swal.fire({
-                    icon: 'success',
-                    title: 'Product Added',
-                    text: `${formData.name} was successfully added!`,
-                });
-                fetchProducts(); // ✅ Refresh product list in RightSide
-                setFormData({
-                    name: '',
-                    category: '',
-                    buyingPrice: '',
-                    sellingPrice: '',
-                    quantity: '',
-                    images: [],
-                });
+                await Swal.fire('Success', `${formData.name} added successfully!`, 'success');
+                fetchProducts();
+                setFormData({ name: '', category: '', buyingPrice: '', sellingPrice: '', quantity: '', images: [] });
             } else {
                 Swal.fire('Error', 'Failed to save product.', 'error');
             }
@@ -73,9 +90,11 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
         }
     };
 
-    const handleExcelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        setLoading(true); // ✨ Show loading while uploading Excel
 
         const reader = new FileReader();
         reader.onload = async (event) => {
@@ -85,49 +104,70 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
             const worksheet = workbook.Sheets[sheetName];
             const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet);
 
-            const enrichedProducts = jsonData.map((item) => {
-                let image = '';
-                if (item.Image?.startsWith('http')) image = item.Image;
-                else if (localImages[item.Image]) image = localImages[item.Image];
-                else if (item.Image) image = '/' + item.Image;
+            for (const item of jsonData) {
+                let imageUrl = '';
 
-                return {
+                if (item.Image?.startsWith('http')) {
+                    imageUrl = item.Image;
+                } else if (item.Image) {
+                    const pickedFile = await pickLocalFile();
+                    if (pickedFile) {
+                        imageUrl = await uploadToCloudinary(pickedFile);
+                    }
+                }
+
+                const newProduct = {
                     id: uuidv4(),
                     name: item['Product Name'] || '',
                     category: item['Category'] || '',
                     buyingPrice: item['Buying Price'] || '',
                     sellingPrice: item['Selling Price'] || '',
                     quantity: item['Quantity'] || '',
-                    image,
-                    images: [image],
+                    image: imageUrl,
+                    images: [imageUrl],
                 };
-            });
 
-            // Save each product to DB
-            for (const product of enrichedProducts) {
                 await fetch('https://welcoming-backend.onrender.com/api/products/add', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(product),
+                    body: JSON.stringify(newProduct),
                 });
             }
 
-            Swal.fire('Imported!', 'Excel products imported successfully!', 'success');
-            fetchProducts(); // ✅ Refresh product list
+            Swal.fire('Success', 'Products imported successfully!', 'success');
+            fetchProducts();
+            setLoading(false); // ✨ Hide loading
         };
 
         reader.readAsArrayBuffer(file);
     };
 
+    const pickLocalFile = async (): Promise<File | null> => {
+        return new Promise((resolve) => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.click();
+
+            input.onchange = () => {
+                if (input.files && input.files.length > 0) {
+                    resolve(input.files[0]);
+                } else {
+                    resolve(null);
+                }
+            };
+        });
+    };
+
     const downloadTemplate = () => {
         const worksheetData = [
             {
-                'Product Name': 'HP Laptop 15s',
-                'Category': 'Laptops',
-                'Buying Price': 850000,
-                'Selling Price': 950000,
-                'Quantity': 10,
-                'Image': 'https://example.com/image.jpg'
+                'Product Name': 'DELL 3190',
+                'Category': 'LAPTOP',
+                'Buying Price': 240000,
+                'Selling Price': 300000,
+                'Quantity': 5,
+                'Image': 'https://res.cloudinary.com/duaahnhgf/image/upload/v1745934265/51x4Du4I_FL_kjiqi1.jpg',
             },
         ];
         const worksheet = XLSX.utils.json_to_sheet(worksheetData);
@@ -138,22 +178,20 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
 
     return (
         <div className={styles.container}>
-            <div className={styles.topHeader}>
-                <h2>Welcome, Admin 👋</h2>
-            </div>
+            <div className={styles.topHeader}><h2>Welcome, Admin 👋</h2></div>
 
             <div className={styles.secondHeader}>
                 <div className={styles.buttonRow}>
-                    <button className={styles.button} onClick={downloadTemplate} type="button">
+                    <button className={styles.button} type="button" onClick={downloadTemplate}>
                         <Download size={18} /> Download Template
                     </button>
-                    <button className={styles.button} onClick={handleImportClick} type="button">
+                    <button className={styles.button} type="button" onClick={handleImportClick}>
                         <Upload size={18} /> Import Excel
                     </button>
                 </div>
 
-                <input type="file" accept=".xlsx, .xls" ref={fileInputRef} style={{ display: 'none' }} onChange={handleExcelUpload} />
-                <input type="file" accept="image/*" multiple ref={imageInputRef} style={{ display: 'none' }} onChange={(e) => {
+                <input ref={fileInputRef} type="file" accept=".xlsx,.xls" style={{ display: 'none' }} onChange={handleExcelUpload} />
+                <input ref={imageInputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={(e) => {
                     const files = e.target.files;
                     if (!files) return;
 
@@ -164,10 +202,7 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
                             if (reader.result) {
                                 imagesArray.push(reader.result as string);
                                 if (imagesArray.length === files.length) {
-                                    setFormData(prev => ({
-                                        ...prev,
-                                        images: [...prev.images, ...imagesArray],
-                                    }));
+                                    setFormData(prev => ({ ...prev, images: [...prev.images, ...imagesArray] }));
                                 }
                             }
                         };
@@ -177,50 +212,50 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
             </div>
 
             <div className={styles.main}>
-                <form className={styles.form} onSubmit={handleFormSubmit}>
-                    <h3>Add New Product</h3>
+                {loading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+                        <BeatLoader size={15} color="#36d7b7" />
+                    </div>
+                ) : (
+                    <form className={styles.form} onSubmit={handleFormSubmit}>
+                        <h3>Add New Product</h3>
 
-                    <label>Product Name</label>
-                    <input type="text" name="name" value={formData.name} onChange={handleFormChange} required />
+                        <label>Product Name</label>
+                        <input name="name" value={formData.name} onChange={handleFormChange} required />
 
-                    <label>Category</label>
-                    <input type="text" name="category" value={formData.category} onChange={handleFormChange} required />
+                        <label>Category</label>
+                        <input name="category" value={formData.category} onChange={handleFormChange} required />
 
-                    <label>Buying Price</label>
-                    <input type="number" name="buyingPrice" value={formData.buyingPrice} onChange={handleFormChange} required />
+                        <label>Buying Price</label>
+                        <input type="number" name="buyingPrice" value={formData.buyingPrice} onChange={handleFormChange} required />
 
-                    <label>Selling Price</label>
-                    <input type="number" name="sellingPrice" value={formData.sellingPrice} onChange={handleFormChange} required />
+                        <label>Selling Price</label>
+                        <input type="number" name="sellingPrice" value={formData.sellingPrice} onChange={handleFormChange} required />
 
-                    <label>Quantity</label>
-                    <input type="number" name="quantity" value={formData.quantity} onChange={handleFormChange} required />
+                        <label>Quantity</label>
+                        <input type="number" name="quantity" value={formData.quantity} onChange={handleFormChange} required />
 
-                    <label>Product Images</label>
-                    <button type="button" onClick={triggerImageUpload} className={styles.uploadButton}>
-                        <Image size={18} /> Choose Images
-                    </button>
+                        <label>Product Images</label>
+                        <button type="button" onClick={triggerImageUpload} className={styles.uploadButton}>
+                            <Image size={18} /> Choose Images
+                        </button>
 
-                    {formData.images.length > 0 && (
-                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
-                            {formData.images.map((img, idx) => (
-                                <img
-                                    key={idx}
-                                    src={img}
-                                    alt={`preview-${idx}`}
-                                    style={{
-                                        width: 60,
-                                        height: 60,
-                                        borderRadius: 6,
-                                        objectFit: 'cover',
-                                        border: '1px solid #ccc',
-                                    }}
-                                />
-                            ))}
-                        </div>
-                    )}
+                        {formData.images.length > 0 && (
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                                {formData.images.map((img, idx) => (
+                                    <img
+                                        key={idx}
+                                        src={img}
+                                        alt={`preview-${idx}`}
+                                        style={{ width: 60, height: 60, borderRadius: 6, objectFit: 'cover', border: '1px solid #ccc' }}
+                                    />
+                                ))}
+                            </div>
+                        )}
 
-                    <button type="submit">Add Product</button>
-                </form>
+                        <button type="submit">Add Product</button>
+                    </form>
+                )}
             </div>
         </div>
     );

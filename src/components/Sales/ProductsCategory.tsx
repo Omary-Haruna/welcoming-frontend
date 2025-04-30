@@ -1,45 +1,61 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './ProductsCategory.module.css';
 
 interface Category {
     name: string;
-    image: string;
+    image?: string;
 }
 
-const categories: Category[] = [
-    {
-        name: 'All',
-        image: 'https://cdn-icons-png.flaticon.com/512/512/512142.png',
-    },
-    {
-        name: 'Computers',
-        image: 'https://r2.ecomputertips.com/imgs/article/laptop-vs-desktop/cover.webp',
-    },
-    {
-        name: 'Accessories',
-        image: 'https://akm-img-a-in.tosshub.com/indiatoday/images/story/202110/61QeMC9P8rL._SL1000__1200x768.jpeg?size=690:388',
-    },
-    {
-        name: 'Printers',
-        image: 'https://media.zenfs.com/en/pc_mag_263/68afe1a26ea514bc21b76bfb0d08129a',
-    },
-    {
-        name: 'Monitors',
-        image: 'https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/peripherals/monitors/p-series/p2425/pdp/monitor-p2425-pdp-mod-gallery.psd?fmt=jpg&wid=3000&hei=3000',
-    },
-];
+interface Product {
+    category: string;
+    image?: string;
+}
 
 interface Props {
     onCategorySelect: (category: string) => void;
     selectedCategory: string;
 }
 
-
 const ProductsCategory: React.FC<Props> = ({ onCategorySelect, selectedCategory }) => {
+    const [categories, setCategories] = useState<Category[]>([]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await fetch('https://welcoming-backend.onrender.com/api/products/all');
+                const data = await res.json();
+
+                if (data.success) {
+                    const products: Product[] = data.products;
+
+                    const uniqueCategories = Array.from(
+                        new Set(products.map((p) => p.category))
+                    ).map((category) => {
+                        const firstMatch = products.find((p) => p.category === category);
+                        return {
+                            name: category,
+                            image: firstMatch?.image,
+                        };
+                    });
+
+                    setCategories([
+                        {
+                            name: 'All',
+                            image: 'https://cdn-icons-png.flaticon.com/512/512/512142.png',
+                        },
+                        ...uniqueCategories,
+                    ]);
+                }
+            } catch (err) {
+                console.error('Failed to fetch product categories:', err);
+            }
+        };
+
+        fetchCategories();
+    }, []);
 
     return (
         <div className={styles.container}>
-
             <div className={styles.grid}>
                 {categories.map((cat) => (
                     <button
@@ -47,10 +63,13 @@ const ProductsCategory: React.FC<Props> = ({ onCategorySelect, selectedCategory 
                         className={`${styles.card} ${selectedCategory === cat.name ? styles.active : ''}`}
                         onClick={() => onCategorySelect(cat.name)}
                     >
-                        <img src={cat.image} alt={cat.name} className={styles.icon} />
+                        <img
+                            src={cat.image || 'https://via.placeholder.com/100?text=No+Image'}
+                            alt={cat.name}
+                            className={styles.icon}
+                        />
                         <span>{cat.name}</span>
                     </button>
-
                 ))}
             </div>
         </div>

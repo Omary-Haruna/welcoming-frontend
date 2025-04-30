@@ -1,16 +1,50 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import styles from './SalesCart.module.css';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSales } from '../../context/SalesContext';
 import { X } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
 
 const SalesCart: React.FC = () => {
-    const { cart, clearCart, removeFromCart, updateQuantity } = useCart();
-    const { addSummary } = useSales();
-
+    const { cart, clearCart, removeFromCart, updateQuantity, setCart } = useCart();
     const totalAmount = cart.reduce((sum, item) => sum + item.total, 0);
+
+    // ✅ Load pending cart from backend on first mount
+    useEffect(() => {
+        const loadPendingCart = async () => {
+            try {
+                const res = await fetch('https://welcoming-backend.onrender.com/api/pending-cart');
+                const data = await res.json();
+                if (data.success && data.cart.length > 0) {
+                    setCart(data.cart);
+                }
+            } catch (err) {
+                console.error('Failed to fetch pending cart:', err);
+            }
+        };
+
+        loadPendingCart();
+    }, [setCart]);
+
+    // ✅ Save to backend on every cart change
+    useEffect(() => {
+        const savePendingCart = async () => {
+            try {
+                await fetch('https://welcoming-backend.onrender.com/api/pending-cart/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cart }),
+                });
+            } catch (err) {
+                console.error('Failed to save cart:', err);
+            }
+        };
+
+        if (cart.length > 0) {
+            savePendingCart();
+        }
+    }, [cart]);
 
     const handleCheckout = async () => {
         const result = await Swal.fire({
@@ -23,15 +57,38 @@ const SalesCart: React.FC = () => {
         });
 
         if (result.isConfirmed) {
-            const subtotal = totalAmount;
-            const tax = 0;
-            const total = subtotal;
-            const soldAt = new Date().toISOString();
+            const saleData = {
+                soldAt: new Date().toISOString(),
+                subtotal: totalAmount,
+                total: totalAmount,
+                items: cart,
+            };
 
-            addSummary({ subtotal, tax, total, items: cart, soldAt });
-            clearCart();
+            try {
+                const res = await fetch('https://welcoming-backend.onrender.com/api/sales/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(saleData),
+                });
 
-            Swal.fire('Success!', 'Checkout completed.', 'success');
+                const data = await res.json();
+
+                if (data.success) {
+                    toast.success('Checkout completed! ✅');
+
+                    // ✅ Clear both local cart and backend pending cart
+                    clearCart();
+
+                    await fetch('https://welcoming-backend.onrender.com/api/pending-cart/clear', {
+                        method: 'DELETE',
+                    });
+                } else {
+                    toast.error('Failed to record sale.');
+                }
+            } catch (err) {
+                console.error('Checkout failed:', err);
+                toast.error('Server error during checkout.');
+            }
         }
     };
 
@@ -73,30 +130,13 @@ const SalesCart: React.FC = () => {
                                     <X size={16} />
                                 </button>
 
-                                <img
-                                    src={item.image}
-                                    alt={item.name || 'Product'}
-                                    className={styles.image}
-                                />
+                                <img src={item.image} alt={item.name} className={styles.image} />
                                 <div className={styles.details}>
                                     <strong>{item.name}</strong>
                                     <div className={styles.qtyRow}>
-                                        <button
-                                            onClick={() =>
-                                                updateQuantity(item.id, item.quantity - 1)
-                                            }
-                                            disabled={item.quantity <= 1}
-                                        >
-                                            -
-                                        </button>
+                                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
                                         <span>{item.quantity}</span>
-                                        <button
-                                            onClick={() =>
-                                                updateQuantity(item.id, item.quantity + 1)
-                                            }
-                                        >
-                                            +
-                                        </button>
+                                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
                                     </div>
                                     <p>Price: ${item.price.toFixed(2)}</p>
                                     <p>Total: ${item.total.toFixed(2)}</p>

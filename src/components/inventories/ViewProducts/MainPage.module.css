@@ -87,11 +87,19 @@
 }
 
 .image {
-    width: 60px;
-    height: 60px;
+    width: 100%;
+    max-width: 60px;
+    /* Limit maximum size */
+    aspect-ratio: 1 / 1;
+    /* Always perfect square */
+    object-fit: contain;
+    /* ✨ Show full image without cutting */
     border-radius: 6px;
-    object-fit: cover;
     border: 1px solid #ccc;
+    background: #f9f9f9;
+    /* Small background to look good if image is small */
+    padding: 4px;
+    /* Optional: a little padding inside */
 }
 
 .iconGroup {

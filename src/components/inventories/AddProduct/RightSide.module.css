@@ -72,12 +72,22 @@
 }
 
 .image img {
-    width: 64px;
-    height: 64px;
-    object-fit: cover;
+    width: 100%;
+    max-width: 80px;
+    /* Maximum width for small screens */
+    height: auto;
+    /* Auto height to keep aspect ratio */
+    aspect-ratio: 1 / 1;
+    /* Make it a square box */
+    object-fit: contain;
+    /* ✨ Show full image without cutting */
     border-radius: 8px;
     border: 1px solid #ccc;
+    background-color: #f4f4f4;
+    /* Optional: Light gray background behind image */
 }
+
+
 
 .details {
     flex: 1;

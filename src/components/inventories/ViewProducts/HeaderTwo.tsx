@@ -1,3 +1,4 @@
+// src/components/inventories/ViewProducts/HeaderTwo.tsx
 import styles from './HeaderTwo.module.css';
 
 interface HeaderTwoProps {
@@ -6,7 +7,7 @@ interface HeaderTwoProps {
     activeFilter: string;
 }
 
-export default function HeaderTwo({ stats = [], onCardClick, activeFilter }: HeaderTwoProps) {
+export default function HeaderTwo({ stats, onCardClick, activeFilter }: HeaderTwoProps) {
     return (
         <div className={styles.cards}>
             {stats.map((stat, idx) => (

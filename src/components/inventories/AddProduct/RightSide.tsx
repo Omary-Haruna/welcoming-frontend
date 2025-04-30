@@ -114,7 +114,10 @@ export default function RightSide({ products, fetchProducts }: RightSideProps) {
     };
 
     const getImage = (image?: string) => {
-        return image && image.trim() !== '' ? image : '/default-product.png';
+        if (!image || !image.trim().startsWith('http')) {
+            return '/default-product.png';
+        }
+        return image.trim();
     };
 
     const mostImported = products.reduce((acc: Record<string, number>, curr) => {
@@ -181,6 +184,7 @@ export default function RightSide({ products, fetchProducts }: RightSideProps) {
                                         <img
                                             src={isEditing ? getImage(editableProduct.image) : getImage(product.image)}
                                             alt={product.name}
+                                            onError={(e) => (e.currentTarget.src = '/default-product.png')}
                                         />
                                     </div>
 
@@ -277,8 +281,7 @@ export default function RightSide({ products, fetchProducts }: RightSideProps) {
                 </div>
             </div>
 
-            {/* Toast notifications */}
-            <ToastContainer position="top-right" autoClose={2000} />
+            <ToastContainer position="bottom-center" autoClose={2000} />
         </>
     );
 }

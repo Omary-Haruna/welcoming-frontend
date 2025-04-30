@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../../styles/NewSale.module.css';
 import {
     Header,
@@ -10,6 +10,26 @@ import {
 
 const NewSale: React.FC = () => {
     const [selectedCategory, setCategory] = useState('All');
+    const [products, setProducts] = useState([]);
+
+    // ✅ Fetch products on mount
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await fetch('https://welcoming-backend.onrender.com/api/products/all');
+                const data = await res.json();
+                if (data.success) {
+                    setProducts(data.products);
+                } else {
+                    console.error('Failed to load products');
+                }
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     return (
         <div className={styles.container}>
@@ -18,12 +38,16 @@ const NewSale: React.FC = () => {
                     onCategorySelect={(category) => setCategory(category)}
                     selectedCategory={selectedCategory}
                 />
-
             </div>
 
             <div className={styles.pos}>
                 <Header />
-                <SalesPoint category={selectedCategory} onCategoryChange={setCategory} />
+                {/* 🔁 Pass filtered products */}
+                <SalesPoint
+                    category={selectedCategory}
+                    onCategoryChange={setCategory}
+                    products={products}
+                />
             </div>
 
             <div className={styles.cart}>
