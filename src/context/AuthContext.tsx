@@ -1,65 +1,79 @@
-import { createContext, useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import { createContext, useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
 
-// Define the type for your AuthContext
+// Define the user type
+type User = {
+    name: string;
+    email: string;
+    role: 'admin' | 'user';
+    status: 'pending' | 'active';
+};
+
+// Define the AuthContext type
 type AuthCtx = {
     token: string | null;
-    role: 'admin' | 'user' | null;
-    login: (t: string) => void;
+    user: User | null;
+    login: (token: string, user: User) => void;
     logout: () => void;
     loading: boolean;
 };
 
-// Create the actual context
+// Create the context
 export const AuthContext = createContext<AuthCtx>(null!);
 
+// Provider component
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [token, setToken] = useState<string | null>(null);
-    const [role, setRole] = useState<'admin' | 'user' | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
+    // Load data from localStorage on refresh
     useEffect(() => {
-        const savedToken = localStorage.getItem('token');
-        if (savedToken) {
-            try {
-                const decoded = jwtDecode<{ role: 'admin' | 'user' }>(savedToken);
-                setToken(savedToken);
-                setRole(decoded.role);
-            } catch (error) {
-                console.error('Invalid token:', error);
-                // ✅ Just clear locally, do not logout
-                localStorage.removeItem('token');
-                setToken(null);
-                setRole(null);
-            }
-        }
-        setLoading(false);
-    }, [router]);
-
-    const login = (newToken: string) => {
         try {
-            const decoded = jwtDecode<{ role: 'admin' | 'user' }>(newToken);
-            localStorage.setItem('token', newToken);
-            setToken(newToken);
-            setRole(decoded.role);
-        } catch (error) {
-            console.error('Invalid token on login:', error);
-            logout();
+            const savedToken = localStorage.getItem('token');
+            const savedUser = localStorage.getItem('user');
+
+            if (savedToken && savedUser) {
+                const parsedUser: User = JSON.parse(savedUser);
+                setToken(savedToken);
+                setUser(parsedUser);
+            }
+        } catch (err) {
+            console.error('❌ Failed to load auth data:', err);
+            logout(); // Clear bad data
+        } finally {
+            setLoading(false);
         }
+    }, []);
+
+    // Save token + user after login
+    const login = (token: string, user: User) => {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        setToken(token);
+        setUser(user);
     };
 
+    // Clear everything on logout
     const logout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setToken(null);
-        setRole(null);
-        router.push('/login');
+        setUser(null);
+        router.push('/');
     };
 
     return (
-        <AuthContext.Provider value={{ token, role, login, logout, loading }}>
+        <AuthContext.Provider value={{ token, user, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );
+};
+
+// Hook to safely use AuthContext
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) throw new Error('useAuth must be used inside AuthProvider');
+    return context;
 };

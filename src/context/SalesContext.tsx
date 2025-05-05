@@ -1,5 +1,13 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { CartItem } from './CartContext';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+
+// 🛒 Make sure CartItem matches your app
+export interface CartItem {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    total: number;
+}
 
 export interface Summary {
     subtotal: number;
@@ -13,6 +21,7 @@ interface SalesContextType {
     summaries: Summary[];
     setSummaries: React.Dispatch<React.SetStateAction<Summary[]>>;
     addSummary: (summary: Summary) => void;
+    deleteSummary: (index: number) => void;
     deleteItemFromSummary: (summaryIndex: number, itemId: string) => void;
     editItemInSummary: (
         summaryIndex: number,
@@ -26,8 +35,23 @@ const SalesContext = createContext<SalesContextType | undefined>(undefined);
 export const SalesProvider = ({ children }: { children: ReactNode }) => {
     const [summaries, setSummaries] = useState<Summary[]>([]);
 
+    // ⬇ Load from localStorage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('sales');
+        if (saved) setSummaries(JSON.parse(saved));
+    }, []);
+
+    // ⬆ Save to localStorage whenever summaries change
+    useEffect(() => {
+        localStorage.setItem('sales', JSON.stringify(summaries));
+    }, [summaries]);
+
     const addSummary = (summary: Summary) => {
         setSummaries((prev) => [...prev, summary]);
+    };
+
+    const deleteSummary = (index: number) => {
+        setSummaries((prev) => prev.filter((_, i) => i !== index));
     };
 
     const deleteItemFromSummary = (summaryIndex: number, itemId: string) => {
@@ -36,13 +60,16 @@ export const SalesProvider = ({ children }: { children: ReactNode }) => {
                 if (idx !== summaryIndex) return summary;
 
                 const updatedItems = summary.items.filter((item) => item.id !== itemId);
-                const updatedTotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
+                const subtotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
+                const tax = subtotal * 0.18; // Example: 18% tax
+                const total = subtotal + tax;
 
                 return {
                     ...summary,
                     items: updatedItems,
-                    subtotal: updatedTotal,
-                    total: updatedTotal,
+                    subtotal,
+                    tax,
+                    total,
                 };
             })
         );
@@ -62,22 +89,26 @@ export const SalesProvider = ({ children }: { children: ReactNode }) => {
 
                     const newPrice = updatedFields.price ?? item.price;
                     const newQuantity = updatedFields.quantity ?? item.quantity;
+                    const newTotal = newPrice * newQuantity;
 
                     return {
                         ...item,
                         price: newPrice,
                         quantity: newQuantity,
-                        total: newPrice * newQuantity,
+                        total: newTotal,
                     };
                 });
 
-                const updatedTotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
+                const subtotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
+                const tax = subtotal * 0.18;
+                const total = subtotal + tax;
 
                 return {
                     ...summary,
                     items: updatedItems,
-                    subtotal: updatedTotal,
-                    total: updatedTotal,
+                    subtotal,
+                    tax,
+                    total,
                 };
             })
         );
@@ -89,6 +120,7 @@ export const SalesProvider = ({ children }: { children: ReactNode }) => {
                 summaries,
                 setSummaries,
                 addSummary,
+                deleteSummary,
                 deleteItemFromSummary,
                 editItemInSummary,
             }}

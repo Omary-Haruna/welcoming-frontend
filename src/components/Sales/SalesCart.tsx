@@ -9,10 +9,8 @@ import { toast } from 'react-toastify';
 const SalesCart: React.FC = () => {
     const { cart, clearCart, removeFromCart, updateQuantity, setCart } = useCart();
 
-    // ✅ Calculate total live (per item: quantity × price)
     const totalAmount = cart.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
-    // ✅ Load pending cart from backend on first mount
     useEffect(() => {
         const loadPendingCart = async () => {
             try {
@@ -29,7 +27,6 @@ const SalesCart: React.FC = () => {
         loadPendingCart();
     }, [setCart]);
 
-    // ✅ Save to backend on every cart change
     useEffect(() => {
         const savePendingCart = async () => {
             try {
@@ -64,11 +61,23 @@ const SalesCart: React.FC = () => {
                 subtotal: totalAmount,
                 total: totalAmount,
                 items: cart.map(item => ({
+                    id: item.id,
                     name: item.name,
                     quantity: item.quantity,
                     total: item.quantity * item.price,
                 })),
             };
+
+            // ✅ Merge duplicate products before reducing quantity
+            const mergedItems = cart.reduce((acc, item) => {
+                const existing = acc.find(p => p.productId === item.id);
+                if (existing) {
+                    existing.quantitySold += item.quantity;
+                } else {
+                    acc.push({ productId: item.id, quantitySold: item.quantity });
+                }
+                return acc;
+            }, [] as { productId: string; quantitySold: number }[]);
 
             try {
                 const res = await fetch('https://welcoming-backend.onrender.com/api/sales/add', {
@@ -80,13 +89,20 @@ const SalesCart: React.FC = () => {
                 const data = await res.json();
 
                 if (data.success) {
-                    toast.success('Checkout completed! ✅');
+                    await fetch('https://welcoming-backend.onrender.com/api/products/reduce-quantity', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ items: mergedItems }),
+                    });
 
-                    clearCart(); // clear local cart
+                    toast.success('Checkout completed! ✅');
+                    clearCart();
 
                     await fetch('https://welcoming-backend.onrender.com/api/pending-cart/clear', {
                         method: 'DELETE',
                     });
+
+                    window.location.reload();
                 } else {
                     toast.error('Failed to record sale.');
                 }

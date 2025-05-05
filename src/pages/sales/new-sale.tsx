@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../../styles/NewSale.module.css';
-import {
-    Header,
-    SalesPoint,
-    ProductsCategory,
-    SalesCart,
-    SalesSummary,
-} from '../../components/Sales';
+
+// ✅ Import components directly instead of from index to avoid React error #130
+import Header from '../../components/Sales/Header';
+import SalesPoint from '../../components/Sales/SalesPoint';
+import ProductsCategory from '../../components/Sales/ProductsCategory';
+import SalesCart from '../../components/Sales/SalesCart';
+import SalesSummary from '../../components/Sales/SalesSummary';
 
 const NewSale: React.FC = () => {
     const [selectedCategory, setCategory] = useState('All');
@@ -42,7 +42,6 @@ const NewSale: React.FC = () => {
 
             <div className={styles.pos}>
                 <Header />
-                {/* 🔁 Pass filtered products */}
                 <SalesPoint
                     category={selectedCategory}
                     onCategoryChange={setCategory}

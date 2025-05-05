@@ -13,6 +13,7 @@ import {
     PointOfSale,
     MoneyOff,
     Logout,
+    AdminPanelSettings,
 } from "@mui/icons-material";
 
 interface MenuItemProps {
@@ -53,7 +54,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ href, text, icon, isExpanded, subIt
                 <ul className={styles.subMenuList}>
                     {subItems?.map((subItem) => (
                         <li key={subItem.href}>
-                            <Link href={subItem.href || "#"} passHref legacyBehavior>
+                            <Link href={subItem.href} passHref legacyBehavior>
                                 <a className={styles.subMenuLink}>{subItem.text}</a>
                             </Link>
                         </li>
@@ -71,6 +72,7 @@ const Sidebar: React.FC = () => {
     const peopleSubItems = [
         { href: "/customer/CustomerManagement", text: "Customers" },
         { href: "/peoples/staff/StaffAccomplishment", text: "Accomplishment" },
+        { href: "/peoples/staff/AddStaffForm", text: "Add Staff Member" },
     ];
 
     const inventorySubItems = [
@@ -80,7 +82,7 @@ const Sidebar: React.FC = () => {
         { href: "/inventory/out-of-stocks", text: "Out of Stocks" },
     ];
 
-    const inventoryCategorySubItems = [
+    const expensesSubItems = [
         { href: "/expenses/expenses", text: "Expense" },
         { href: "/expenses/income", text: "Income" },
     ];
@@ -88,6 +90,11 @@ const Sidebar: React.FC = () => {
     const salesSubItems = [
         { href: "/sales/new-sale", text: "New Sale" },
         { href: "/sales/sales-list", text: "Sales List" },
+        { href: "/admin/PendingCartsPage", text: "Pending Carts" },
+    ];
+
+    const adminSubItems = [
+        { href: "/admin/ApproveUsers", text: "Approve Users" }, // ✅ Added admin route
     ];
 
     const handlePinToggle = () => {
@@ -102,7 +109,7 @@ const Sidebar: React.FC = () => {
 
     const handleLogout = () => {
         localStorage.clear();
-        window.location.href = "/"; // Redirect to homepage or login
+        window.location.href = "/";
     };
 
     return (
@@ -117,16 +124,17 @@ const Sidebar: React.FC = () => {
                     {isPinned ? <PushPin /> : <PushPinOutlined />}
                 </button>
             </div>
+
             <ul className={styles.menuList}>
                 <MenuItem href="/dashboard" text="Dashboard" icon={<Dashboard />} isExpanded={isExpanded} />
                 <MenuItem text="People" icon={<People />} isExpanded={isExpanded} subItems={peopleSubItems} />
                 <MenuItem text="Inventory" icon={<Inventory2 />} isExpanded={isExpanded} subItems={inventorySubItems} />
-                <MenuItem text="Expenses" icon={<MoneyOff />} isExpanded={isExpanded} subItems={inventoryCategorySubItems} />
+                <MenuItem text="Expenses" icon={<MoneyOff />} isExpanded={isExpanded} subItems={expensesSubItems} />
                 <MenuItem text="Sales" icon={<PointOfSale />} isExpanded={isExpanded} subItems={salesSubItems} />
+                <MenuItem text="Admin" icon={<AdminPanelSettings />} isExpanded={isExpanded} subItems={adminSubItems} />
                 <MenuItem href="/settings" text="Settings" icon={<Settings />} isExpanded={isExpanded} />
             </ul>
 
-            {/* 🔒 Logout Button at Bottom */}
             <div className={styles.logoutSection}>
                 <button onClick={handleLogout} className={styles.logoutBtn}>
                     <Logout />

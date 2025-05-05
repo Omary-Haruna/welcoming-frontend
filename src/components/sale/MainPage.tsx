@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import styles from './mainpage.module.css';
-import { v4 as uuidv4 } from 'uuid';
+
+interface SaleItem {
+    id: string;
+    date: string;
+    product: string;
+    biller: string;
+    payment: string;
+    price: number;
+    quantity: number;
+}
 
 const MainPage = () => {
-    const [salesData, setSalesData] = useState([]);
-    const [filteredData, setFilteredData] = useState([]);
+    const [salesData, setSalesData] = useState<SaleItem[]>([]);
+    const [filteredData, setFilteredData] = useState<SaleItem[]>([]);
 
     const [search, setSearch] = useState('');
     const [payment, setPayment] = useState('All');
@@ -12,118 +21,31 @@ const MainPage = () => {
     const [dateFilter, setDateFilter] = useState('All');
 
     useEffect(() => {
-        const sampleData = [
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-27',
-                product: 'HP EliteBook 840',
-                biller: 'John M.',
-                payment: 'Cash',
-                price: 450000,
-                quantity: 2,
-            },
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-26',
-                product: 'Wireless Keyboard',
-                biller: 'Jane D.',
-                payment: 'Mobile',
-                price: 125000,
-                quantity: 1,
-            },
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-25',
-                product: 'Dell Monitor 24"',
-                biller: 'Kevin A.',
-                payment: 'Bank',
-                price: 950000,
-                quantity: 3,
-            },
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-24',
-                product: 'Lenovo ThinkPad X1',
-                biller: 'Alice K.',
-                payment: 'Cash',
-                price: 670000,
-                quantity: 1,
-            },
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-24',
-                product: 'USB-C Docking Station',
-                biller: 'Mark S.',
-                payment: 'Bank',
-                price: 180000,
-                quantity: 2,
-            },
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-23',
-                product: 'iPad Air 2024',
-                biller: 'Nina P.',
-                payment: 'Mobile',
-                price: 1200000,
-                quantity: 1,
-            },
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-22',
-                product: 'ASUS ROG Strix Laptop',
-                biller: 'Zack R.',
-                payment: 'Cash',
-                price: 2200000,
-                quantity: 1,
-            },
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-22',
-                product: 'Bluetooth Mouse',
-                biller: 'Emily B.',
-                payment: 'Mobile',
-                price: 85000,
-                quantity: 2,
-            },
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-21',
-                product: 'Canon Printer G3010',
-                biller: 'Daniel W.',
-                payment: 'Bank',
-                price: 350000,
-                quantity: 1,
-            },
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-21',
-                product: 'Office Chair',
-                biller: 'Sara M.',
-                payment: 'Cash',
-                price: 150000,
-                quantity: 3,
-            },
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-20',
-                product: 'External SSD 1TB',
-                biller: 'Bruno G.',
-                payment: 'Bank',
-                price: 290000,
-                quantity: 2,
-            },
-            {
-                id: uuidv4().slice(0, 8),
-                date: '2025-03-20',
-                product: 'MacBook Pro 14"',
-                biller: 'Linda T.',
-                payment: 'Mobile',
-                price: 3200000,
-                quantity: 1,
+        const fetchSales = async () => {
+            try {
+                const res = await fetch('https://welcoming-backend.onrender.com/api/sales/all');
+                const data = await res.json();
+                if (data.success) {
+                    const formatted = data.sales.flatMap((sale: any) =>
+                        sale.items.map((item: any) => ({
+                            id: sale._id.slice(-8),
+                            date: sale.soldAt.split('T')[0],
+                            product: item.name,
+                            biller: sale.biller || 'N/A',
+                            payment: sale.paymentMethod || 'Cash',
+                            price: item.total / item.quantity,
+                            quantity: item.quantity,
+                        }))
+                    );
+                    setSalesData(formatted);
+                    setFilteredData(formatted);
+                }
+            } catch (err) {
+                console.error('Error fetching sales:', err);
             }
-        ];
-        setSalesData(sampleData);
-        setFilteredData(sampleData);
+        };
+
+        fetchSales();
     }, []);
 
     useEffect(() => {
@@ -141,20 +63,13 @@ const MainPage = () => {
 
         filtered = filtered.filter((sale) => {
             switch (priceRange) {
-                case 'Under 250,000':
-                    return sale.price < 250000;
-                case 'Over 250,000':
-                    return sale.price > 250000;
-                case 'Under 500,000':
-                    return sale.price < 500000;
-                case 'Under 1,000,000':
-                    return sale.price < 1000000;
-                case 'Over 1,000,000':
-                    return sale.price > 1000000;
-                case 'Over 2,000,000':
-                    return sale.price > 2000000;
-                default:
-                    return true;
+                case 'Under 250,000': return sale.price < 250000;
+                case 'Over 250,000': return sale.price > 250000;
+                case 'Under 500,000': return sale.price < 500000;
+                case 'Under 1,000,000': return sale.price < 1000000;
+                case 'Over 1,000,000': return sale.price > 1000000;
+                case 'Over 2,000,000': return sale.price > 2000000;
+                default: return true;
             }
         });
 
@@ -221,7 +136,7 @@ const MainPage = () => {
 
             <div className={styles.tableWrapper}>
                 {filteredData.length === 0 ? (
-                    <p className={styles.noData}>No customer was provided.</p>
+                    <p className={styles.noData}>No sales data found.</p>
                 ) : (
                     <table className={styles.table}>
                         <thead>
@@ -230,6 +145,7 @@ const MainPage = () => {
                                 <th>Date</th>
                                 <th>Product</th>
                                 <th>Biller</th>
+                                <th>Payment</th>
                                 <th>Price</th>
                                 <th>Qty</th>
                                 <th>Total</th>
@@ -243,6 +159,7 @@ const MainPage = () => {
                                     <td>{sale.date}</td>
                                     <td>{sale.product}</td>
                                     <td>{sale.biller}</td>
+                                    <td>{sale.payment}</td>
                                     <td>{sale.price.toLocaleString()} TZS</td>
                                     <td>{sale.quantity}</td>
                                     <td>{(sale.price * sale.quantity).toLocaleString()} TZS</td>
@@ -256,7 +173,7 @@ const MainPage = () => {
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colSpan={5}></td>
+                                <td colSpan={6}></td>
                                 <td><strong>{totalQuantity}</strong></td>
                                 <td><strong>{totalPrice.toLocaleString()} TZS</strong></td>
                                 <td></td>

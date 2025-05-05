@@ -27,11 +27,36 @@
 
 
 /* Product Grid */
+/* Enable vertical scroll for long lists */
 .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 14px;
+    max-height: 75vh;
+    /* Set max height so it can scroll */
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: #00c6ff #f1f1f1;
+    /* Firefox */
 }
+
+/* Scrollbar style for WebKit (Chrome, Edge, Safari) */
+.grid::-webkit-scrollbar {
+    width: 10px;
+}
+
+.grid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.grid::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #00c6ff, #0072ff);
+    border-radius: 10px;
+}
+
+.grid::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, #0072ff, #0051cc);
+}
+
 
 /* Product Card */
 .card {

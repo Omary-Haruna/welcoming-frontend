@@ -1,14 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './headerone.module.css';
-import {
-    ShoppingBag,
-    CalendarDays,
-    PackageCheck,
-    UserCheck,
-} from 'lucide-react';
+import { ShoppingBag, CalendarDays, PackageCheck, UserCheck } from 'lucide-react';
 
 const HeaderOne = () => {
     const currentDate = new Date().toLocaleDateString();
+    const [summary, setSummary] = useState({
+        topProduct: 'Loading...',
+        topSellingDate: 'Loading...',
+        mostSoldItem: 'Loading...',
+        topCustomer: 'Loading...',
+    });
+
+    useEffect(() => {
+        const fetchSummary = async () => {
+            try {
+                const res = await fetch('https://welcoming-backend.onrender.com/api/sales/summary');
+                const data = await res.json();
+                if (data.success && data.summary) {
+                    setSummary(data.summary);
+                }
+            } catch (err) {
+                console.error('Failed to load summary:', err);
+            }
+        };
+
+        fetchSummary();
+    }, []);
 
     return (
         <div className={styles.headerOne}>
@@ -25,7 +42,7 @@ const HeaderOne = () => {
                     <div className={styles.icon}><ShoppingBag size={24} /></div>
                     <div className={styles.cardText}>
                         <h3>Top Product</h3>
-                        <p>Dell XPS 13</p>
+                        <p>{summary.topProduct}</p>
                     </div>
                 </div>
 
@@ -33,7 +50,7 @@ const HeaderOne = () => {
                     <div className={styles.icon}><CalendarDays size={24} /></div>
                     <div className={styles.cardText}>
                         <h3>Top Selling Date</h3>
-                        <p>March 20, 2025</p>
+                        <p>{summary.topSellingDate}</p>
                     </div>
                 </div>
 
@@ -41,7 +58,7 @@ const HeaderOne = () => {
                     <div className={styles.icon}><PackageCheck size={24} /></div>
                     <div className={styles.cardText}>
                         <h3>Most Sold Item</h3>
-                        <p>Wireless Mouse</p>
+                        <p>{summary.mostSoldItem}</p>
                     </div>
                 </div>
 
@@ -49,7 +66,7 @@ const HeaderOne = () => {
                     <div className={styles.icon}><UserCheck size={24} /></div>
                     <div className={styles.cardText}>
                         <h3>Top Customer</h3>
-                        <p>Jane Doe</p>
+                        <p>{summary.topCustomer}</p>
                     </div>
                 </div>
             </div>

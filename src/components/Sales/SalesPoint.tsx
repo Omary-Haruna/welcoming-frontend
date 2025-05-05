@@ -3,8 +3,6 @@ import styles from './SalesPoint.module.css';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-toastify';
 import { Search } from 'lucide-react';
-import CustomDropdown from '../cards/CustomDropdown';
-import { v4 as uuidv4 } from 'uuid'; // 👈 add this import
 
 interface Product {
     _id: string;
@@ -50,7 +48,6 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
         const matchMainCategory = category === 'All' || product.category === category;
         const matchSubCategory = selectedSubCategory === 'All' || product.category === selectedSubCategory;
         const matchSearch = product.name.toLowerCase().includes(search.toLowerCase());
-
         return matchMainCategory && matchSubCategory && matchSearch;
     });
 
@@ -68,14 +65,18 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                     />
                 </div>
 
-                <CustomDropdown
-                    options={[...new Set(products.map((p) => p.category))]
-                        .map((cat) => ({ value: cat, label: cat }))
-                        .concat({ value: 'All', label: 'All Categories' })}
-                    selected={category}
-                    onChange={onCategoryChange}
-                    placeholder="Select Category"
-                />
+                <select
+                    value={category}
+                    onChange={(e) => onCategoryChange(e.target.value)}
+                    className={styles.searchInput}
+                >
+                    <option value="All">All Categories</option>
+                    {[...new Set(products.map((p) => p.category))].map((cat) => (
+                        <option key={cat} value={cat}>
+                            {cat}
+                        </option>
+                    ))}
+                </select>
             </div>
 
             <div className={styles.grid}>
@@ -157,11 +158,12 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                                 const price = prices[selectedProduct._id] ?? selectedProduct.sellingPrice;
 
                                 const cartItem = {
-                                    id: uuidv4(), // 🔑 Unique each time
+                                    id: selectedProduct._id,
                                     name: selectedProduct.name,
                                     image: selectedProduct.image,
                                     price,
                                     quantity,
+                                    total: price * quantity,
                                     customerName,
                                     customerPhone,
                                     paymentMethod,
@@ -170,7 +172,10 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                                 addToCart(cartItem);
                                 toast.success(`${selectedProduct.name} added to cart! ✅`);
 
-                                // Reset state
+                                // ✅ Reset quantity & price to prevent re-adding duplicates
+                                setQuantities((prev) => ({ ...prev, [selectedProduct._id]: 1 }));
+                                setPrices((prev) => ({ ...prev, [selectedProduct._id]: selectedProduct.sellingPrice }));
+
                                 setShowPopup(false);
                                 setSelectedProduct(null);
                                 setCustomerName('');

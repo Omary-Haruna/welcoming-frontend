@@ -15,7 +15,7 @@ interface CartContextType {
     clearCart: () => void;
     removeFromCart: (id: number) => void;
     updateQuantity: (id: number, quantity: number) => void;
-    setCart: (items: CartItem[]) => void; // for syncing from backend
+    setCart: (items: CartItem[]) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -24,25 +24,31 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [cart, setCart] = useState<CartItem[]>([]);
 
     const addToCart = (item: CartItem) => {
+        const safeQuantity = item.quantity > 0 ? item.quantity : 1;
+        const safeTotal = safeQuantity * item.price;
+
         setCart((prev) => {
-            const exists = prev.find((i) => i.id === item.id);
-            if (exists) {
-                return prev.map((i) =>
-                    i.id === item.id
+            const existing = prev.find((p) => p.id === item.id);
+            if (existing) {
+                // ✅ Replace existing item with new quantity instead of adding it again
+                return prev.map((p) =>
+                    p.id === item.id
                         ? {
-                            ...i,
-                            quantity: i.quantity + item.quantity,
-                            total: (i.quantity + item.quantity) * i.price,
+                            ...p,
+                            quantity: safeQuantity,
+                            total: safeTotal,
                         }
-                        : i
+                        : p
                 );
             }
+
+            // ✅ Add new item
             return [
                 ...prev,
                 {
                     ...item,
-                    quantity: item.quantity || 1,
-                    total: (item.quantity || 1) * item.price,
+                    quantity: safeQuantity,
+                    total: safeTotal,
                 },
             ];
         });
@@ -54,19 +60,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setCart((prev) => prev.filter((item) => item.id !== id));
     };
 
-    const updateQuantity = (id: number, newQuantity: number) => {
+    const updateQuantity = (id: number, quantity: number) => {
+        const safeQuantity = Math.max(1, quantity);
         setCart((prev) =>
-            prev
-                .map((item) =>
-                    item.id === id
-                        ? {
-                            ...item,
-                            quantity: newQuantity,
-                            total: newQuantity * item.price,
-                        }
-                        : item
-                )
-                .filter((item) => item.quantity > 0)
+            prev.map((item) =>
+                item.id === id
+                    ? {
+                        ...item,
+                        quantity: safeQuantity,
+                        total: safeQuantity * item.price,
+                    }
+                    : item
+            )
         );
     };
 
@@ -78,7 +83,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 clearCart,
                 removeFromCart,
                 updateQuantity,
-                setCart, // expose this for syncing from backend
+                setCart,
             }}
         >
             {children}

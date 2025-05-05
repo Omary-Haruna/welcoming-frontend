@@ -3,6 +3,7 @@ import styles from './SalesSummary.module.css';
 import { motion } from 'framer-motion';
 import { Pencil, Trash2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import Link from 'next/link';
 
 interface SaleItem {
     name: string;
@@ -30,8 +31,21 @@ const SalesSummary: React.FC = () => {
         try {
             const res = await fetch('https://welcoming-backend.onrender.com/api/sales/all');
             const data = await res.json();
+
             if (data.success) {
-                setSummaries(data.sales);
+                // ✅ Use range filtering for today's sales
+                const todayStart = new Date();
+                todayStart.setHours(0, 0, 0, 0);
+
+                const todayEnd = new Date();
+                todayEnd.setHours(23, 59, 59, 999);
+
+                const filtered = data.sales.filter((sale: SaleSummary) => {
+                    const saleDate = new Date(sale.soldAt);
+                    return saleDate >= todayStart && saleDate <= todayEnd;
+                });
+
+                setSummaries(filtered);
             } else {
                 console.error('Failed to load sales data');
             }
@@ -59,32 +73,56 @@ const SalesSummary: React.FC = () => {
                 const data = await res.json();
                 if (data.success) {
                     Swal.fire('Deleted!', 'Sale has been removed.', 'success');
-                    fetchSales();
+                    setSummaries((prev) => prev.filter((sale) => sale._id !== id));
                 } else {
                     Swal.fire('Error!', 'Failed to delete sale.', 'error');
                 }
             } catch (error) {
                 console.error('Delete failed:', error);
+                Swal.fire('Error!', 'Server error while deleting.', 'error');
             }
         }
     };
 
     const formatTsh = (value: number) => `Tshs ${value.toLocaleString('en-TZ')}/-`;
 
-    if (loading) return <p className={styles.loading}>Loading sales summary...</p>;
+    if (loading) return <p className={styles.loading}>Loading today's sales summary...</p>;
 
     if (summaries.length === 0) {
         return (
             <div className={styles.container}>
                 <h2 className={styles.title}>Sales Summary</h2>
-                <p className={styles.empty}>No sales recorded yet.</p>
+                <motion.p
+                    className={styles.empty}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                >
+                    No sales recorded today.
+                </motion.p>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className={styles.linkPrompt}
+                >
+                    <Link href="/sales/sales-list" className={styles.link}>
+                        Want more data? 👉 View full Sales List
+                    </Link>
+                </motion.div>
             </div>
         );
     }
 
+    const totalRevenue = summaries.reduce((acc, s) => acc + s.total, 0);
+    const totalQuantity = summaries.reduce(
+        (acc, s) => acc + s.items.reduce((sum, i) => sum + i.quantity, 0),
+        0
+    );
+
     return (
         <div className={styles.container}>
-            <h2 className={styles.title}>Sales Summary</h2>
+            <h2 className={styles.title}>Today's Sales Summary</h2>
             <motion.div
                 className={styles.tableWrapper}
                 initial={{ opacity: 0, y: 20 }}
@@ -104,7 +142,7 @@ const SalesSummary: React.FC = () => {
                     <tbody>
                         {summaries.map((summary) => (
                             <tr key={summary._id} className={styles.row}>
-                                <td>{new Date(summary.soldAt).toLocaleString()}</td>
+                                <td>{new Date(summary.soldAt).toLocaleTimeString()}</td>
                                 <td>{formatTsh(summary.subtotal)}</td>
                                 <td>{formatTsh(summary.total)}</td>
                                 <td>
@@ -116,8 +154,8 @@ const SalesSummary: React.FC = () => {
                                         ))}
                                     </ul>
                                 </td>
-                                <td>
-                                    <button title="Edit (Coming soon)" disabled>
+                                <td className={styles.actions}>
+                                    <button title="Edit (coming soon)" disabled>
                                         <Pencil size={16} />
                                     </button>
                                     <button onClick={() => handleDelete(summary._id)} title="Delete">
@@ -126,15 +164,27 @@ const SalesSummary: React.FC = () => {
                                 </td>
                             </tr>
                         ))}
+
                         <tr className={styles.totalRow}>
                             <td><strong>Totals</strong></td>
                             <td></td>
-                            <td><strong>{formatTsh(summaries.reduce((a, b) => a + b.total, 0))}</strong></td>
-                            <td><strong>{summaries.reduce((acc, s) => acc + s.items.reduce((sum, i) => sum + i.quantity, 0), 0)} items sold</strong></td>
+                            <td><strong>{formatTsh(totalRevenue)}</strong></td>
+                            <td><strong>{totalQuantity} items sold</strong></td>
                             <td></td>
                         </tr>
                     </tbody>
                 </table>
+            </motion.div>
+
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className={styles.linkPrompt}
+            >
+                <Link href="/sales/sales-list" className={styles.link}>
+                    View full Sales List here
+                </Link>
             </motion.div>
         </div>
     );

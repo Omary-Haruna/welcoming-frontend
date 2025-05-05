@@ -11,31 +11,67 @@ const HomePage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false); // 👈 loading state for login
+    const [loading, setLoading] = useState(false);
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const [passwordStrength, setPasswordStrength] = useState('');
 
     const { login } = useContext(AuthContext);
     const router = useRouter();
 
-    /* ───────── REGISTER ───────── */
+    const showError = (title: string, message: string) => {
+        return Swal.fire({
+            icon: 'error',
+            title,
+            text: message,
+            customClass: {
+                popup: styles.swalPopup,
+                title: styles.swalTitle,
+                htmlContainer: styles.swalContent,
+                confirmButton: styles.swalButton,
+            },
+        });
+    };
+
+    const showSuccess = (title: string, message: string) => {
+        return Swal.fire({
+            icon: 'success',
+            title,
+            text: message,
+            customClass: {
+                popup: styles.swalPopup,
+                title: styles.swalTitle,
+                htmlContainer: styles.swalContent,
+                confirmButton: styles.swalButton,
+            },
+        });
+    };
+
+    const checkPasswordStrength = (pass: string) => {
+        if (pass.length < 6) return 'Weak';
+        const strong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        const medium = /^(?=.*[a-z])(?=.*\d).{6,}$/;
+        if (strong.test(pass)) return 'Strong';
+        if (medium.test(pass)) return 'Medium';
+        return 'Weak';
+    };
+
+    const isStrongPassword = (pass: string) =>
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/.test(pass);
+
     const handleRegister = async (e: FormEvent) => {
         e.preventDefault();
-        if (password !== confirmPassword) {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Passwords do not match 🙅‍♂️',
-                customClass: {
-                    popup: styles.swalPopup,
-                    title: styles.swalTitle,
-                    htmlContainer: styles.swalContent,
-                    confirmButton: styles.swalButton,
-                },
-                showClass: { popup: 'animate__animated animate__fadeInDown' },
-                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-            });
-            return;
-        }
 
+        if (name.trim().length < 3) return showError('Invalid Name', 'Name must be at least 3 characters.');
+        if (!email.includes('@') || !email.includes('.')) return showError('Invalid Email', 'Please enter a valid email address.');
+        if (!isStrongPassword(password)) {
+            return showError(
+                'Weak Password',
+                'Password must be at least 6 characters and include uppercase, lowercase, and a number.'
+            );
+        }
+        if (password !== confirmPassword) return showError('Password Mismatch', 'Passwords do not match.');
+
+        setLoading(true);
         try {
             const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
@@ -43,63 +79,32 @@ const HomePage = () => {
                 body: JSON.stringify({ name, email, password }),
             });
 
+            const data = await res.json();
+
             if (res.ok) {
-                await Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Registered successfully! Please log in.',
-                    customClass: {
-                        popup: styles.swalPopup,
-                        title: styles.swalTitle,
-                        htmlContainer: styles.swalContent,
-                        confirmButton: styles.swalButton,
-                    },
-                    showClass: { popup: 'animate__animated animate__fadeInDown' },
-                    hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-                });
+                const message = data?.status === 'pending'
+                    ? 'Account created. Please wait for admin approval.'
+                    : 'Registered successfully! You can now log in.';
+                await showSuccess('Success', message);
                 setIsLogin(true);
                 setName('');
                 setEmail('');
                 setPassword('');
                 setConfirmPassword('');
             } else {
-                const { error } = await res.json();
-                await Swal.fire({
-                    icon: 'error',
-                    title: 'Registration Failed',
-                    text: `Error: ${error}`,
-                    customClass: {
-                        popup: styles.swalPopup,
-                        title: styles.swalTitle,
-                        htmlContainer: styles.swalContent,
-                        confirmButton: styles.swalButton,
-                    },
-                    showClass: { popup: 'animate__animated animate__fadeInDown' },
-                    hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-                });
+                await showError('Registration Failed', data?.error || 'Something went wrong.');
             }
         } catch (err) {
             console.error(err);
-            await Swal.fire({
-                icon: 'error',
-                title: 'Network Error',
-                text: 'Make sure your backend is running.',
-                customClass: {
-                    popup: styles.swalPopup,
-                    title: styles.swalTitle,
-                    htmlContainer: styles.swalContent,
-                    confirmButton: styles.swalButton,
-                },
-                showClass: { popup: 'animate__animated animate__fadeInDown' },
-                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-            });
+            await showError('Network Error', 'Check your internet or backend server.');
+        } finally {
+            setLoading(false);
         }
     };
 
-    /* ───────── LOGIN ───────── */
     const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
-        setLoading(true); // 👈 start loading
+        setLoading(true);
 
         try {
             const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
@@ -108,47 +113,21 @@ const HomePage = () => {
                 body: JSON.stringify({ email, password }),
             });
 
-            if (res.ok) {
-                const { token, user } = await res.json();
-                login(token);
+            const data = await res.json();
 
-                router.push({
-                    pathname: '/dashboard',
-                    query: { justLoggedIn: 'true', name: user.name },
-                });
+            if (res.ok) {
+                const { token, user } = data;
+                login(token, user);
+                await showSuccess('Login Successful!', `Welcome back ${user?.name?.split(' ')[0] || 'User'}!`);
+                router.push('/dashboard');
             } else {
-                const { error } = await res.json();
-                await Swal.fire({
-                    icon: 'error',
-                    title: 'Login Failed',
-                    text: `Error: ${error}`,
-                    customClass: {
-                        popup: styles.swalPopup,
-                        title: styles.swalTitle,
-                        htmlContainer: styles.swalContent,
-                        confirmButton: styles.swalButton,
-                    },
-                    showClass: { popup: 'animate__animated animate__fadeInDown' },
-                    hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-                });
+                await showError('Login Failed', data?.error || 'Invalid credentials');
             }
         } catch (err) {
-            console.error('🔴 Network error in handleLogin:', err);
-            await Swal.fire({
-                icon: 'error',
-                title: 'Network Error',
-                text: 'Make sure your backend is running.',
-                customClass: {
-                    popup: styles.swalPopup,
-                    title: styles.swalTitle,
-                    htmlContainer: styles.swalContent,
-                    confirmButton: styles.swalButton,
-                },
-                showClass: { popup: 'animate__animated animate__fadeInDown' },
-                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-            });
+            console.error('Login error:', err);
+            await showError('Network Error', 'Check your internet or backend server.');
         } finally {
-            setLoading(false); // 👈 stop loading
+            setLoading(false);
         }
     };
 
@@ -160,12 +139,14 @@ const HomePage = () => {
                 <button
                     onClick={() => setIsLogin(false)}
                     className={`${styles.tabButton} ${!isLogin ? styles.active : ''}`}
+                    disabled={loading}
                 >
                     Register
                 </button>
                 <button
                     onClick={() => setIsLogin(true)}
                     className={`${styles.tabButton} ${isLogin ? styles.active : ''}`}
+                    disabled={loading}
                 >
                     Login
                 </button>
@@ -188,9 +169,10 @@ const HomePage = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         className={styles.input}
+                        autoComplete="current-password"
                     />
                     <button type="submit" className={styles.submitButton} disabled={loading}>
-                        {loading ? "Logging in..." : "Log In"}
+                        {loading ? '⏳ Logging in...' : 'Log In'}
                     </button>
                 </form>
             ) : (
@@ -210,15 +192,64 @@ const HomePage = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         className={styles.input}
+                        autoComplete="email"
                     />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className={styles.input}
-                    />
+
+                    {/* Password Field */}
+                    <div className={styles.passwordContainer}>
+                        <input
+                            type={passwordVisible ? 'text' : 'password'}
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => {
+                                setPassword(e.target.value);
+                                setPasswordStrength(checkPasswordStrength(e.target.value));
+                            }}
+                            required
+                            className={styles.input}
+                            autoComplete="new-password"
+                        />
+                        <button
+                            type="button"
+                            className={styles.showHideBtn}
+                            onClick={() => setPasswordVisible(!passwordVisible)}
+                        >
+                            {passwordVisible ? '🙈 Hide' : '👁 Show'}
+                        </button>
+
+                        {/* Password Strength Feedback */}
+                        {password && (
+                            <>
+                                <div className={styles.progressBarContainer}>
+                                    <div
+                                        className={`${styles.progressBar} ${passwordStrength === 'Strong' ? styles.strongBar :
+                                                passwordStrength === 'Medium' ? styles.mediumBar :
+                                                    styles.weakBar
+                                            }`}
+                                        style={{
+                                            width: passwordStrength === 'Strong' ? '100%' : passwordStrength === 'Medium' ? '66%' : '33%',
+                                        }}
+                                    />
+                                </div>
+                                <p
+                                    className={
+                                        passwordStrength === 'Strong' ? styles.strong :
+                                            passwordStrength === 'Medium' ? styles.medium :
+                                                styles.weak
+                                    }
+                                >
+                                    {passwordStrength} Password
+                                </p>
+                            </>
+                        )}
+
+                        {/* Password Hint */}
+                        <p className={styles.passwordHint}>
+                            A strong password has at least 6 characters, including an uppercase letter, a lowercase letter, and a number.
+                        </p>
+                    </div>
+
+                    {/* Confirm Password */}
                     <input
                         type="password"
                         placeholder="Confirm password"
@@ -226,9 +257,10 @@ const HomePage = () => {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                         className={styles.input}
+                        autoComplete="new-password"
                     />
-                    <button type="submit" className={styles.submitButton}>
-                        Sign Up
+                    <button type="submit" className={styles.submitButton} disabled={loading}>
+                        {loading ? '⏳ Signing up...' : 'Sign Up'}
                     </button>
                 </form>
             )}
