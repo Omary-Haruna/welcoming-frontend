@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import styles from "../styles/Sidebar.module.css";
 import Link from "next/link";
 import {
@@ -15,6 +15,7 @@ import {
     Logout,
     AdminPanelSettings,
 } from "@mui/icons-material";
+import { AuthContext } from "../context/AuthContext";
 
 interface MenuItemProps {
     href?: string;
@@ -68,34 +69,37 @@ const MenuItem: React.FC<MenuItemProps> = ({ href, text, icon, isExpanded, subIt
 const Sidebar: React.FC = () => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isPinned, setIsPinned] = useState(false);
+    const { user } = useContext(AuthContext);
+
+    const hasPermission = (label: string) => user?.role === 'admin' || user?.permissions?.includes(label);
 
     const peopleSubItems = [
         { href: "/customer/CustomerManagement", text: "Customers" },
         { href: "/peoples/staff/StaffAccomplishment", text: "Accomplishment" },
         { href: "/peoples/staff/AddStaffForm", text: "Add Staff Member" },
-    ];
+    ].filter(item => hasPermission(item.text));
 
     const inventorySubItems = [
         { href: "/inventory/add-products", text: "Add Product" },
         { href: "/inventory/views-products", text: "View Products" },
         { href: "/inventory/low-stocks", text: "Low Stocks" },
         { href: "/inventory/out-of-stocks", text: "Out of Stocks" },
-    ];
+    ].filter(item => hasPermission(item.text));
 
     const expensesSubItems = [
         { href: "/expenses/expenses", text: "Expense" },
         { href: "/expenses/income", text: "Income" },
-    ];
+    ].filter(item => hasPermission(item.text));
 
     const salesSubItems = [
         { href: "/sales/new-sale", text: "New Sale" },
         { href: "/sales/sales-list", text: "Sales List" },
         { href: "/admin/PendingCartsPage", text: "Pending Carts" },
-    ];
+    ].filter(item => hasPermission(item.text));
 
     const adminSubItems = [
-        { href: "/admin/ApproveUsers", text: "Approve Users" }, // ✅ Added admin route
-    ];
+        { href: "/admin/ApproveUsers", text: "Approve Users" },
+    ].filter(item => hasPermission(item.text));
 
     const handlePinToggle = () => {
         setIsPinned((prev) => {
@@ -127,12 +131,12 @@ const Sidebar: React.FC = () => {
 
             <ul className={styles.menuList}>
                 <MenuItem href="/dashboard" text="Dashboard" icon={<Dashboard />} isExpanded={isExpanded} />
-                <MenuItem text="People" icon={<People />} isExpanded={isExpanded} subItems={peopleSubItems} />
-                <MenuItem text="Inventory" icon={<Inventory2 />} isExpanded={isExpanded} subItems={inventorySubItems} />
-                <MenuItem text="Expenses" icon={<MoneyOff />} isExpanded={isExpanded} subItems={expensesSubItems} />
-                <MenuItem text="Sales" icon={<PointOfSale />} isExpanded={isExpanded} subItems={salesSubItems} />
-                <MenuItem text="Admin" icon={<AdminPanelSettings />} isExpanded={isExpanded} subItems={adminSubItems} />
-                <MenuItem href="/settings" text="Settings" icon={<Settings />} isExpanded={isExpanded} />
+                {peopleSubItems.length > 0 && <MenuItem text="People" icon={<People />} isExpanded={isExpanded} subItems={peopleSubItems} />}
+                {inventorySubItems.length > 0 && <MenuItem text="Inventory" icon={<Inventory2 />} isExpanded={isExpanded} subItems={inventorySubItems} />}
+                {expensesSubItems.length > 0 && <MenuItem text="Expenses" icon={<MoneyOff />} isExpanded={isExpanded} subItems={expensesSubItems} />}
+                {salesSubItems.length > 0 && <MenuItem text="Sales" icon={<PointOfSale />} isExpanded={isExpanded} subItems={salesSubItems} />}
+                {adminSubItems.length > 0 && <MenuItem text="Admin" icon={<AdminPanelSettings />} isExpanded={isExpanded} subItems={adminSubItems} />}
+                {hasPermission("Settings") && <MenuItem href="/settings" text="Settings" icon={<Settings />} isExpanded={isExpanded} />}
             </ul>
 
             <div className={styles.logoutSection}>

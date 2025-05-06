@@ -1,73 +1,192 @@
 .container {
-    padding: 2rem;
     max-width: 800px;
-    margin: auto;
-    font-family: 'Segoe UI', sans-serif;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #ffffff;
+    min-height: 100vh;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
 }
 
 .title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
     text-align: center;
     margin-bottom: 2rem;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .userCard {
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
+    background-color: #f8fafc;
+    border-radius: 8px;
     padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    transition: 0.3s ease;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .userCard:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .userCard h3 {
-    margin-bottom: 0.5rem;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 1rem;
+}
+
+.toggleButton {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #edf2f7;
+    color: #4a5568;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-bottom: 1rem;
+}
+
+.toggleButton:hover {
+    background-color: #e2e8f0;
+    transform: scale(1.02);
 }
 
 .permissions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin: 1rem 0;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    animation: slideIn 0.4s ease-in-out;
 }
 
 .permissions label {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
     font-size: 0.95rem;
-    background: #f3f3f3;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
+    color: #4a5568;
     cursor: pointer;
-    transition: 0.2s ease;
+    padding: 0.5rem;
+    background-color: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    transition: background-color 0.3s ease;
 }
 
 .permissions label:hover {
-    background: #e2e2e2;
+    background-color: #f7fafc;
 }
 
-.button {
-    padding: 0.6rem 1.2rem;
-    background-color: #007bff;
-    color: white;
+.permissions input[type="checkbox"] {
+    accent-color: #3182ce;
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+}
+
+.buttonRow {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.approveButton,
+.disapproveButton {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
     border: none;
-    font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
-.button:disabled {
-    background-color: #ccc;
+.approveButton {
+    background-color: #48bb78;
+    color: #ffffff;
+}
+
+.approveButton:hover {
+    background-color: #38a169;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.disapproveButton {
+    background-color: #f56565;
+    color: #ffffff;
+}
+
+.disapproveButton:hover {
+    background-color: #e53e3e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.approveButton:disabled,
+.disapproveButton:disabled {
+    background-color: #a0aec0;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
-.button:hover:not(:disabled) {
-    background-color: #0056b3;
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .userCard {
+        padding: 1rem;
+    }
+
+    .buttonRow {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .approveButton,
+    .disapproveButton {
+        width: 100%;
+        padding: 0.75rem;
+    }
+
+    .permissions {
+        flex-direction: column;
+    }
 }
