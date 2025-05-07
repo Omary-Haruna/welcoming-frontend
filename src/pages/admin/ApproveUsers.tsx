@@ -22,6 +22,7 @@ const PERMISSION_OPTIONS = [
 
 export default function ApproveUsersPage() {
     const [pendingUsers, setPendingUsers] = useState([]);
+    const [approvedUsers, setApprovedUsers] = useState([]);
     const [selectedPermissions, setSelectedPermissions] = useState({});
     const [showPermissions, setShowPermissions] = useState({});
     const [loading, setLoading] = useState(false);
@@ -34,6 +35,7 @@ export default function ApproveUsersPage() {
             return;
         }
         fetchPendingUsers();
+        fetchApprovedUsers();
     }, []);
 
     const fetchPendingUsers = async () => {
@@ -42,6 +44,14 @@ export default function ApproveUsersPage() {
         });
         const data = await res.json();
         setPendingUsers(data.users || []);
+    };
+
+    const fetchApprovedUsers = async () => {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/approved-users`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setApprovedUsers(data.users || []);
     };
 
     const togglePermission = (userId, permission) => {
@@ -84,6 +94,7 @@ export default function ApproveUsersPage() {
                 delete copy[userId];
                 return copy;
             });
+            fetchApprovedUsers(); // Refresh approved list
         } else {
             Swal.fire('Error', data.error || 'Approval failed', 'error');
         }
@@ -114,6 +125,7 @@ export default function ApproveUsersPage() {
 
     return (
         <div className={styles.container}>
+            {/* Pending Users Section */}
             <h2 className={styles.title}>Pending Users</h2>
             {pendingUsers.length === 0 ? (
                 <p className={styles.noUsers}>There are no pending users.</p>
@@ -141,6 +153,24 @@ export default function ApproveUsersPage() {
                             <button onClick={() => approveUser(user._id)} disabled={loading} className={styles.approveButton}>✅ Approve</button>
                             <button onClick={() => disapproveUser(user._id)} disabled={loading} className={styles.disapproveButton}>❌ Disapprove</button>
                         </div>
+                    </div>
+                ))
+            )}
+
+            {/* Approved Users Section */}
+            <h2 className={styles.title}>Approved Users</h2>
+            {approvedUsers.length === 0 ? (
+                <p className={styles.noUsers}>No approved users found.</p>
+            ) : (
+                approvedUsers.map((user, index) => (
+                    <div key={user._id} className={styles.userCardApproved}>
+                        <h3>{index + 1}. {user.name} ({user.email})</h3>
+                        <p><strong>Permissions:</strong></p>
+                        <ul className={styles.permissionsList}>
+                            {user.permissions.map((perm, i) => (
+                                <li key={i}>✅ {perm}</li>
+                            ))}
+                        </ul>
                     </div>
                 ))
             )}

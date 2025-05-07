@@ -1,29 +1,50 @@
 // src/components/ProtectedRoute.tsx
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useRouter } from 'next/router';
+
+interface ProtectedRouteProps {
+    children: React.ReactNode;
+    requireAdmin?: boolean;
+    requiredPermission?: string;
+}
 
 export default function ProtectedRoute({
     children,
     requireAdmin = false,
-}: {
-    children: React.ReactNode;
-    requireAdmin?: boolean;
-}) {
+    requiredPermission,
+}: ProtectedRouteProps) {
     const { token, user, loading } = useContext(AuthContext);
     const router = useRouter();
+    const [authorized, setAuthorized] = useState(false);
 
     useEffect(() => {
         if (!loading) {
-            if (!token) {
+            if (!token || !user) {
                 router.push('/'); // Not logged in
-            } else if (requireAdmin && user?.role !== 'admin') {
-                router.push('/not-authorized'); // Logged in but not admin
+                return;
             }
-        }
-    }, [token, user, loading, router, requireAdmin]);
 
-    if (loading || !token || (requireAdmin && user?.role !== 'admin')) {
+            if (requireAdmin && user.role !== 'admin') {
+                router.push('/not-authorized'); // Admin only
+                return;
+            }
+
+            if (requiredPermission && !user.permissions?.includes(requiredPermission)) {
+                router.push('/not-authorized'); // Permission denied
+                return;
+            }
+
+            if (user.status !== 'active') {
+                router.push('/pending-approval'); // Still waiting
+                return;
+            }
+
+            setAuthorized(true); // All checks passed
+        }
+    }, [token, user, loading, router, requireAdmin, requiredPermission]);
+
+    if (!authorized || loading) {
         return <div>Loading...</div>;
     }
 

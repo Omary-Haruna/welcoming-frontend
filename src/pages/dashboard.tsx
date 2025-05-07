@@ -5,7 +5,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 
 const DashboardPage: React.FC = () => {
     return (
-        <ProtectedRoute requireAdmin>
+        <ProtectedRoute requiredPermission="/dashboard">
             <Main />
         </ProtectedRoute>
     );
