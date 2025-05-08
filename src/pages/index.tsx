@@ -118,9 +118,17 @@ const HomePage = () => {
             if (res.ok) {
                 const { token, user } = data;
                 login(token, user);
+
                 await showSuccess('Login Successful!', `Welcome back ${user?.name?.split(' ')[0] || 'User'}!`);
-                router.push('/dashboard');
-            } else {
+
+                // ✅ Redirect based on role or permission
+                const firstAllowedPage = user.role === 'admin'
+                    ? '/dashboard'
+                    : user.permissions?.[0] || '/not-authorized';
+
+                router.push(firstAllowedPage);
+            }
+            else {
                 await showError('Login Failed', data?.error || 'Invalid credentials');
             }
         } catch (err) {
@@ -223,8 +231,8 @@ const HomePage = () => {
                                 <div className={styles.progressBarContainer}>
                                     <div
                                         className={`${styles.progressBar} ${passwordStrength === 'Strong' ? styles.strongBar :
-                                                passwordStrength === 'Medium' ? styles.mediumBar :
-                                                    styles.weakBar
+                                            passwordStrength === 'Medium' ? styles.mediumBar :
+                                                styles.weakBar
                                             }`}
                                         style={{
                                             width: passwordStrength === 'Strong' ? '100%' : passwordStrength === 'Medium' ? '66%' : '33%',

@@ -71,35 +71,36 @@ const Sidebar: React.FC = () => {
     const [isPinned, setIsPinned] = useState(false);
     const { user } = useContext(AuthContext);
 
-    const hasPermission = (label: string) => user?.role === 'admin' || user?.permissions?.includes(label);
+    const hasPermission = (path: string) =>
+        user?.role === "admin" || user?.permissions?.includes(path);
 
     const peopleSubItems = [
         { href: "/customer/CustomerManagement", text: "Customers" },
         { href: "/peoples/staff/StaffAccomplishment", text: "Accomplishment" },
         { href: "/peoples/staff/AddStaffForm", text: "Add Staff Member" },
-    ].filter(item => hasPermission(item.text));
+    ].filter((item) => hasPermission(item.href));
 
     const inventorySubItems = [
         { href: "/inventory/add-products", text: "Add Product" },
         { href: "/inventory/views-products", text: "View Products" },
         { href: "/inventory/low-stocks", text: "Low Stocks" },
         { href: "/inventory/out-of-stocks", text: "Out of Stocks" },
-    ].filter(item => hasPermission(item.text));
+    ].filter((item) => hasPermission(item.href));
 
     const expensesSubItems = [
         { href: "/expenses/expenses", text: "Expense" },
         { href: "/expenses/income", text: "Income" },
-    ].filter(item => hasPermission(item.text));
+    ].filter((item) => hasPermission(item.href));
 
     const salesSubItems = [
         { href: "/sales/new-sale", text: "New Sale" },
         { href: "/sales/sales-list", text: "Sales List" },
         { href: "/admin/PendingCartsPage", text: "Pending Carts" },
-    ].filter(item => hasPermission(item.text));
+    ].filter((item) => hasPermission(item.href));
 
     const adminSubItems = [
         { href: "/admin/ApproveUsers", text: "Approve Users" },
-    ].filter(item => hasPermission(item.text));
+    ].filter((item) => hasPermission(item.href));
 
     const handlePinToggle = () => {
         setIsPinned((prev) => {
@@ -130,13 +131,28 @@ const Sidebar: React.FC = () => {
             </div>
 
             <ul className={styles.menuList}>
-                <MenuItem href="/dashboard" text="Dashboard" icon={<Dashboard />} isExpanded={isExpanded} />
-                {peopleSubItems.length > 0 && <MenuItem text="People" icon={<People />} isExpanded={isExpanded} subItems={peopleSubItems} />}
-                {inventorySubItems.length > 0 && <MenuItem text="Inventory" icon={<Inventory2 />} isExpanded={isExpanded} subItems={inventorySubItems} />}
-                {expensesSubItems.length > 0 && <MenuItem text="Expenses" icon={<MoneyOff />} isExpanded={isExpanded} subItems={expensesSubItems} />}
-                {salesSubItems.length > 0 && <MenuItem text="Sales" icon={<PointOfSale />} isExpanded={isExpanded} subItems={salesSubItems} />}
-                {adminSubItems.length > 0 && <MenuItem text="Admin" icon={<AdminPanelSettings />} isExpanded={isExpanded} subItems={adminSubItems} />}
-                {hasPermission("Settings") && <MenuItem href="/settings" text="Settings" icon={<Settings />} isExpanded={isExpanded} />}
+                {/* ✅ Now only shows if user has permission OR is admin */}
+                {hasPermission("/dashboard") && (
+                    <MenuItem href="/dashboard" text="Dashboard" icon={<Dashboard />} isExpanded={isExpanded} />
+                )}
+                {peopleSubItems.length > 0 && (
+                    <MenuItem text="People" icon={<People />} isExpanded={isExpanded} subItems={peopleSubItems} />
+                )}
+                {inventorySubItems.length > 0 && (
+                    <MenuItem text="Inventory" icon={<Inventory2 />} isExpanded={isExpanded} subItems={inventorySubItems} />
+                )}
+                {expensesSubItems.length > 0 && (
+                    <MenuItem text="Expenses" icon={<MoneyOff />} isExpanded={isExpanded} subItems={expensesSubItems} />
+                )}
+                {salesSubItems.length > 0 && (
+                    <MenuItem text="Sales" icon={<PointOfSale />} isExpanded={isExpanded} subItems={salesSubItems} />
+                )}
+                {adminSubItems.length > 0 && (
+                    <MenuItem text="Admin" icon={<AdminPanelSettings />} isExpanded={isExpanded} subItems={adminSubItems} />
+                )}
+                {hasPermission("/settings") && (
+                    <MenuItem href="/settings" text="Settings" icon={<Settings />} isExpanded={isExpanded} />
+                )}
             </ul>
 
             <div className={styles.logoutSection}>

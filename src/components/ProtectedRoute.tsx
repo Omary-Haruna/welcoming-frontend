@@ -1,4 +1,3 @@
-// src/components/ProtectedRoute.tsx
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useRouter } from 'next/router';
@@ -30,7 +29,11 @@ export default function ProtectedRoute({
                 return;
             }
 
-            if (requiredPermission && !user.permissions?.includes(requiredPermission)) {
+            if (
+                requiredPermission &&
+                user.role !== 'admin' && // ✅ let admin access everything
+                !user.permissions?.includes(requiredPermission)
+            ) {
                 router.push('/not-authorized'); // Permission denied
                 return;
             }
