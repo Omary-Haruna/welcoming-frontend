@@ -1,32 +1,42 @@
+/* Base container styles */
 .container {
     background: #fff;
     border-radius: 16px;
-    padding: 24px;
+    padding: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     height: 100%;
     overflow-y: auto;
+    transition: padding 0.3s ease;
 }
 
 /* Summary section */
 .summary {
     display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 12px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
+    animation: fadeIn 0.5s ease-in;
 }
 
 .cardInfo {
     flex: 1;
-    min-width: 180px;
+    min-width: 160px;
     background-color: #f4f6f8;
     border-radius: 12px;
-    padding: 16px;
+    padding: 12px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cardInfo:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .cardLabel {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: #777;
+    transition: color 0.2s ease;
 }
 
 .cardValue {
@@ -41,16 +51,17 @@
 }
 
 .title {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     color: #222;
+    animation: slideIn 0.4s ease;
 }
 
 .list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     padding: 0;
     margin: 0;
     list-style: none;
@@ -59,35 +70,37 @@
 .card {
     display: flex;
     align-items: flex-start;
-    gap: 16px;
-    padding: 16px;
+    gap: 12px;
+    padding: 12px;
     border: 1px solid #eee;
     border-radius: 12px;
     background-color: #fafafa;
-    transition: box-shadow 0.2s ease;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    animation: fadeInUp 0.5s ease;
 }
 
 .card:hover {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
 }
 
 .image img {
     width: 100%;
     max-width: 80px;
-    /* Maximum width for small screens */
     height: auto;
-    /* Auto height to keep aspect ratio */
     aspect-ratio: 1 / 1;
-    /* Make it a square box */
     object-fit: contain;
-    /* ✨ Show full image without cutting */
     border-radius: 8px;
     border: 1px solid #ccc;
     background-color: #f4f4f4;
-    /* Optional: Light gray background behind image */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    animation: imagePop 0.4s ease;
 }
 
-
+.image img:hover {
+    transform: scale(1.05);
+    opacity: 0.95;
+}
 
 .details {
     flex: 1;
@@ -103,11 +116,12 @@
     border-radius: 6px;
     outline: none;
     background-color: #fff;
-    transition: border 0.2s;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
 .details input:focus {
     border-color: #0077ff;
+    box-shadow: 0 0 4px rgba(0, 119, 255, 0.2);
 }
 
 .actions {
@@ -123,16 +137,12 @@
     cursor: pointer;
     padding: 6px;
     border-radius: 6px;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .iconButton:hover {
     background: rgba(0, 0, 0, 0.07);
-}
-
-.cardHint {
-    font-size: 0.85rem;
-    color: #666;
+    transform: scale(1.1);
 }
 
 .cardDate {
@@ -149,26 +159,14 @@
     margin-top: 6px;
 }
 
-.cardInfo {
-    flex: 1;
-    min-width: 200px;
-    background-color: #f4f6f8;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    font-size: larger;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
 .totals {
     display: flex;
     justify-content: space-between;
-    margin-top: 24px;
+    margin-top: 20px;
     padding-top: 12px;
     border-top: 1px solid #e5e7eb;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    animation: slideIn 0.4s ease;
 }
 
 .totalLabel {
@@ -188,6 +186,126 @@
     display: block;
 }
 
-.cardLabel {
-    font-size: 20px;
+/* Keyframes for animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-10px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes imagePop {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments for small devices */
+@media (max-width: 768px) {
+    .container {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .summary {
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .cardInfo {
+        min-width: 140px;
+        padding: 10px;
+    }
+
+    .title {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+
+    .card {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px;
+    }
+
+    .image img {
+        max-width: 60px;
+        margin-bottom: 8px;
+    }
+
+    .actions {
+        margin-left: 0;
+        justify-content: flex-end;
+    }
+
+    .totals {
+        flex-direction: column;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+
+    .cardInfo {
+        min-width: 100%;
+        font-size: 0.85rem;
+    }
+
+    .cardLabel {
+        font-size: 0.8rem;
+    }
+
+    .cardValue {
+        font-size: 1rem;
+    }
+
+    .image img {
+        max-width: 50px;
+    }
+
+    .details input {
+        font-size: 0.85rem;
+        padding: 6px 8px;
+    }
+
+    .iconButton {
+        padding: 4px;
+    }
 }

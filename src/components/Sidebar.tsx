@@ -15,6 +15,7 @@ import {
     Logout,
     AdminPanelSettings,
 } from "@mui/icons-material";
+import { ShoppingBag } from "lucide-react"; // 🛒 Icon for Orders
 import { AuthContext } from "../context/AuthContext";
 
 interface MenuItemProps {
@@ -102,6 +103,12 @@ const Sidebar: React.FC = () => {
         { href: "/admin/ApproveUsers", text: "Approve Users" },
     ].filter((item) => hasPermission(item.href));
 
+    const orderSubItems = [
+        { href: "/orders/add-order", text: "Add a New Order" },
+        { href: "/orders/view-orders", text: "View All Orders" },
+        { href: "/orders/order-statistics", text: "Order Statistics" },
+    ].filter((item) => hasPermission(item.href));
+
     const handlePinToggle = () => {
         setIsPinned((prev) => {
             const newPinnedState = !prev;
@@ -131,7 +138,6 @@ const Sidebar: React.FC = () => {
             </div>
 
             <ul className={styles.menuList}>
-                {/* ✅ Now only shows if user has permission OR is admin */}
                 {hasPermission("/dashboard") && (
                     <MenuItem href="/dashboard" text="Dashboard" icon={<Dashboard />} isExpanded={isExpanded} />
                 )}
@@ -146,6 +152,9 @@ const Sidebar: React.FC = () => {
                 )}
                 {salesSubItems.length > 0 && (
                     <MenuItem text="Sales" icon={<PointOfSale />} isExpanded={isExpanded} subItems={salesSubItems} />
+                )}
+                {orderSubItems.length > 0 && (
+                    <MenuItem text="Orders" icon={<ShoppingBag />} isExpanded={isExpanded} subItems={orderSubItems} />
                 )}
                 {adminSubItems.length > 0 && (
                     <MenuItem text="Admin" icon={<AdminPanelSettings />} isExpanded={isExpanded} subItems={adminSubItems} />

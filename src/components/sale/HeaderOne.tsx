@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import styles from './headerone.module.css';
 import { ShoppingBag, CalendarDays, PackageCheck, UserCheck } from 'lucide-react';
+import { AuthContext } from '../../context/AuthContext';
 
 const HeaderOne = () => {
+    const { user } = useContext(AuthContext);
     const currentDate = new Date().toLocaleDateString();
+
     const [summary, setSummary] = useState({
         topProduct: 'Loading...',
         topSellingDate: 'Loading...',
@@ -32,7 +35,9 @@ const HeaderOne = () => {
             <div className={styles.headerTop}>
                 <div>
                     <h1>Sales List</h1>
-                    <p className={styles.greeting}>Welcome back, John</p>
+                    <p className={styles.greeting}>
+                        Welcome back, {user?.name?.split(' ')[0] || 'User'}
+                    </p>
                 </div>
                 <span className={styles.date}>{currentDate}</span>
             </div>
