@@ -1,0 +1,23 @@
+.grid {
+    display: grid;
+    grid-template-areas:
+        "selectCustomer addNewCustomer"
+        "productSelector cartSummary"
+        "paymentDetails orderNotes"
+        "submitOrder submitOrder";
+    gap: 1rem;
+    padding: 1rem;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-areas:
+            "selectCustomer"
+            "addNewCustomer"
+            "productSelector"
+            "cartSummary"
+            "paymentDetails"
+            "orderNotes"
+            "submitOrder";
+    }
+}
