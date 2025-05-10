@@ -1,70 +1,57 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface CartItem {
-    id: number;
+    cartId: string;
+    id: string | number;
     name: string;
     price: number;
     quantity: number;
     total: number;
     image?: string;
+    customerName?: string;
+    customerPhone?: string;
+    paymentMethod?: string;
+    region?: string;
 }
 
 interface CartContextType {
     cart: CartItem[];
-    addToCart: (item: CartItem) => void;
+    addToCart: (item: Omit<CartItem, 'cartId' | 'total'>) => void;
     clearCart: () => void;
-    removeFromCart: (id: number) => void;
-    updateQuantity: (id: number, quantity: number) => void;
+    removeFromCart: (cartId: string) => void;
+    updateQuantity: (cartId: string, quantity: number) => void;
     setCart: (items: CartItem[]) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-    const [cart, setCart] = useState<CartItem[]>([]);
+    const [cart, setCartState] = useState<CartItem[]>([]);
 
-    const addToCart = (item: CartItem) => {
+    const addToCart = (item: Omit<CartItem, 'cartId' | 'total'>) => {
         const safeQuantity = item.quantity > 0 ? item.quantity : 1;
         const safeTotal = safeQuantity * item.price;
 
-        setCart((prev) => {
-            const existing = prev.find((p) => p.id === item.id);
-            if (existing) {
-                // ✅ Replace existing item with new quantity instead of adding it again
-                return prev.map((p) =>
-                    p.id === item.id
-                        ? {
-                            ...p,
-                            quantity: safeQuantity,
-                            total: safeTotal,
-                        }
-                        : p
-                );
-            }
+        const newItem: CartItem = {
+            ...item,
+            cartId: uuidv4(),
+            total: safeTotal,
+            quantity: safeQuantity,
+        };
 
-            // ✅ Add new item
-            return [
-                ...prev,
-                {
-                    ...item,
-                    quantity: safeQuantity,
-                    total: safeTotal,
-                },
-            ];
-        });
+        setCartState((prev) => [...prev, newItem]);
     };
 
-    const clearCart = () => setCart([]);
-
-    const removeFromCart = (id: number) => {
-        setCart((prev) => prev.filter((item) => item.id !== id));
+    const removeFromCart = (cartId: string) => {
+        setCartState((prev) => prev.filter((item) => item.cartId !== cartId));
     };
 
-    const updateQuantity = (id: number, quantity: number) => {
+    const updateQuantity = (cartId: string, quantity: number) => {
         const safeQuantity = Math.max(1, quantity);
-        setCart((prev) =>
+        setCartState((prev) =>
             prev.map((item) =>
-                item.id === id
+                item.cartId === cartId
                     ? {
                         ...item,
                         quantity: safeQuantity,
@@ -73,6 +60,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                     : item
             )
         );
+    };
+
+    const clearCart = () => setCartState([]);
+
+    const setCart = (items: CartItem[]) => {
+        const safeItems = items.map(item => ({
+            ...item,
+            cartId: item.cartId || uuidv4(),
+            total: item.quantity * item.price,
+        }));
+        setCartState(safeItems);
     };
 
     return (

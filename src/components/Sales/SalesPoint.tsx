@@ -4,6 +4,7 @@ import styles from './SalesPoint.module.css';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-toastify';
 import { Search } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Product {
     _id: string;
@@ -157,7 +158,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                             options={regionOptions}
                             placeholder="Select Region..."
                             value={region}
-                            onChange={(selected) => setRegion(selected)}
+                            onChange={(selected) => setRegion(selected as { value: string; label: string })}
                             className={styles.popupSelect}
                         />
 
@@ -180,42 +181,26 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
 
                         <button
                             className={styles.popupButton}
-                            onClick={async () => {
+                            onClick={() => {
                                 const quantity = quantities[selectedProduct._id] ?? 1;
                                 const price = prices[selectedProduct._id] ?? selectedProduct.sellingPrice;
+                                const total = price * quantity;
 
-                                const cartItem = {
+                                const newItem = {
+                                    cartId: uuidv4(),
                                     id: selectedProduct._id,
                                     name: selectedProduct.name,
                                     image: selectedProduct.image,
                                     price,
                                     quantity,
-                                    total: price * quantity,
+                                    total,
                                     customerName,
                                     customerPhone,
                                     paymentMethod,
                                     region: region?.value || ''
                                 };
 
-                                addToCart(cartItem);
-
-                                if (customerName || customerPhone || paymentMethod !== 'Cash' || region) {
-                                    try {
-                                        const res = await fetch('https://welcoming-backend.onrender.com/api/pending-cart/save', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ cart: [cartItem] }),
-                                        });
-
-                                        const data = await res.json();
-                                        if (!data.success) {
-                                            toast.warn('Saved to cart, but not synced to backend.');
-                                        }
-                                    } catch (err) {
-                                        console.error('Error syncing with backend:', err);
-                                        toast.warn('Saved locally, but failed to sync with backend.');
-                                    }
-                                }
+                                addToCart(newItem);
 
                                 toast.success(`${selectedProduct.name} (${formatTZS(price)}) added to cart! ✅`);
 
@@ -226,7 +211,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                                 setCustomerName('');
                                 setCustomerPhone('');
                                 setPaymentMethod('Cash');
-                                setRegion(null);
+                                setRegion({ value: 'Dar es Salaam', label: 'Dar es Salaam' });
                             }}
                         >
                             Add to Cart
