@@ -9,6 +9,7 @@ interface SaleItem {
     payment: string;
     price: number;
     quantity: number;
+    buyingPrice: number;
 }
 
 const MainPage = () => {
@@ -35,6 +36,7 @@ const MainPage = () => {
                             payment: sale.paymentMethod || 'Cash',
                             price: item.total / item.quantity,
                             quantity: item.quantity,
+                            buyingPrice: item.buyingPrice || 0,
                         }))
                     );
                     setSalesData(formatted);
@@ -87,10 +89,15 @@ const MainPage = () => {
 
     const totalQuantity = filteredData.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = filteredData.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const totalProfit = filteredData.reduce(
+        (sum, item) => sum + (item.price - item.buyingPrice) * item.quantity,
+        0
+    );
 
     return (
         <div className={styles.mainPage}>
             <div className={styles.filters}>
+                {/* Filter Inputs */}
                 <div className={styles.filterGroup}>
                     <label>Search</label>
                     <input
@@ -100,7 +107,6 @@ const MainPage = () => {
                         placeholder="Search customer or product..."
                     />
                 </div>
-
                 <div className={styles.filterGroup}>
                     <label>Payment</label>
                     <select value={payment} onChange={(e) => setPayment(e.target.value)}>
@@ -110,7 +116,6 @@ const MainPage = () => {
                         <option>Mobile</option>
                     </select>
                 </div>
-
                 <div className={styles.filterGroup}>
                     <label>Price</label>
                     <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)}>
@@ -123,7 +128,6 @@ const MainPage = () => {
                         <option>Over 2,000,000</option>
                     </select>
                 </div>
-
                 <div className={styles.filterGroup}>
                     <label>Date</label>
                     <select value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}>
@@ -176,6 +180,11 @@ const MainPage = () => {
                                 <td colSpan={6}></td>
                                 <td><strong>{totalQuantity}</strong></td>
                                 <td><strong>{totalPrice.toLocaleString()} TZS</strong></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colSpan={6}></td>
+                                <td colSpan={2}><strong>Profit: {totalProfit.toLocaleString()} TZS</strong></td>
                                 <td></td>
                             </tr>
                         </tfoot>

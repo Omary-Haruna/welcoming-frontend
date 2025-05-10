@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Select from 'react-select';
 import styles from './SalesPoint.module.css';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-toastify';
@@ -18,6 +19,13 @@ interface Props {
     products: Product[];
 }
 
+const regionOptions = [
+    'Arusha', 'Dar es Salaam', 'Dodoma', 'Geita', 'Iringa', 'Kagera', 'Katavi', 'Kigoma', 'Kilimanjaro',
+    'Lindi', 'Manyara', 'Mara', 'Mbeya', 'Morogoro', 'Mtwara', 'Mwanza', 'Njombe', 'Pemba North',
+    'Pemba South', 'Pwani', 'Rukwa', 'Ruvuma', 'Shinyanga', 'Simiyu', 'Singida', 'Tabora',
+    'Tanga', 'Zanzibar North', 'Zanzibar South', 'Zanzibar West', 'Zanzibar Urban/West'
+].map(region => ({ value: region, label: region }));
+
 const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) => {
     const { addToCart } = useCart();
 
@@ -29,7 +37,10 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
     const [customerName, setCustomerName] = useState('');
     const [customerPhone, setCustomerPhone] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('Cash');
-    const [selectedSubCategory, setSelectedSubCategory] = useState('All');
+    const [region, setRegion] = useState<{ value: string; label: string }>({
+        value: 'Dar es Salaam',
+        label: 'Dar es Salaam'
+    });
 
     const handleQuantityChange = (id: string, value: number) => {
         setQuantities((prev) => ({ ...prev, [id]: value }));
@@ -44,11 +55,12 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
         setShowPopup(true);
     };
 
+    const formatTZS = (amount: number) => `Tsh ${amount.toLocaleString()}`;
+
     const filteredProducts = products.filter((product) => {
-        const matchMainCategory = category === 'All' || product.category === category;
-        const matchSubCategory = selectedSubCategory === 'All' || product.category === selectedSubCategory;
+        const matchCategory = category === 'All' || product.category === category;
         const matchSearch = product.name.toLowerCase().includes(search.toLowerCase());
-        return matchMainCategory && matchSubCategory && matchSearch;
+        return matchCategory && matchSearch;
     });
 
     return (
@@ -72,51 +84,51 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                 >
                     <option value="All">All Categories</option>
                     {[...new Set(products.map((p) => p.category))].map((cat) => (
-                        <option key={cat} value={cat}>
-                            {cat}
-                        </option>
+                        <option key={cat} value={cat}>{cat}</option>
                     ))}
                 </select>
             </div>
 
             <div className={styles.grid}>
-                {filteredProducts.map((product) => (
-                    <div key={product._id} className={styles.card}>
-                        <img
-                            src={product.image || 'https://via.placeholder.com/100?text=No+Image'}
-                            alt={product.name}
-                            className={styles.image}
-                        />
-                        <h4>{product.name}</h4>
-                        <p className={styles.category}>{product.category}</p>
+                {filteredProducts.map((product) => {
+                    const quantity = quantities[product._id] ?? 1;
+                    const price = prices[product._id] ?? product.sellingPrice;
 
-                        <label className={styles.label}>Price</label>
-                        <input
-                            type="number"
-                            min="0"
-                            className={styles.input}
-                            value={prices[product._id] ?? product.sellingPrice}
-                            onChange={(e) =>
-                                handlePriceChange(product._id, parseFloat(e.target.value) || 0)
-                            }
-                        />
+                    return (
+                        <div key={product._id} className={styles.card}>
+                            <img
+                                src={product.image || 'https://via.placeholder.com/100?text=No+Image'}
+                                alt={product.name}
+                                className={styles.image}
+                            />
+                            <h4>{product.name}</h4>
+                            <p className={styles.category}>{product.category}</p>
 
-                        <label className={styles.label}>Quantity</label>
-                        <input
-                            type="number"
-                            min="1"
-                            className={styles.input}
-                            value={quantities[product._id] ?? 1}
-                            onChange={(e) =>
-                                handleQuantityChange(product._id, parseInt(e.target.value) || 1)
-                            }
-                        />
+                            <label className={styles.label}>Price</label>
+                            <input
+                                type="number"
+                                min="0"
+                                className={styles.input}
+                                value={price}
+                                onChange={(e) => handlePriceChange(product._id, parseFloat(e.target.value) || 0)}
+                            />
+                            <p className={styles.tzs}>({formatTZS(price)})</p>
 
-                        <button className={styles.sellBtn} onClick={() => handleSell(product)}>
-                            Add to Cart
-                        </button>
-                    </div>
-                ))}
+                            <label className={styles.label}>Quantity</label>
+                            <input
+                                type="number"
+                                min="1"
+                                className={styles.input}
+                                value={quantity}
+                                onChange={(e) => handleQuantityChange(product._id, parseInt(e.target.value) || 1)}
+                            />
+
+                            <button className={styles.sellBtn} onClick={() => handleSell(product)}>
+                                Add to Cart
+                            </button>
+                        </div>
+                    );
+                })}
             </div>
 
             {showPopup && selectedProduct && (
@@ -141,6 +153,14 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                             className={styles.popupInput}
                         />
 
+                        <Select
+                            options={regionOptions}
+                            placeholder="Select Region..."
+                            value={region}
+                            onChange={(selected) => setRegion(selected)}
+                            className={styles.popupSelect}
+                        />
+
                         <select
                             value={paymentMethod}
                             onChange={(e) => setPaymentMethod(e.target.value)}
@@ -151,9 +171,16 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                             <option value="Bank">Bank</option>
                         </select>
 
+                        <p className={styles.popupTotal}>
+                            Total: <strong>{formatTZS(
+                                (prices[selectedProduct._id] ?? selectedProduct.sellingPrice) *
+                                (quantities[selectedProduct._id] ?? 1)
+                            )}</strong>
+                        </p>
+
                         <button
                             className={styles.popupButton}
-                            onClick={() => {
+                            onClick={async () => {
                                 const quantity = quantities[selectedProduct._id] ?? 1;
                                 const price = prices[selectedProduct._id] ?? selectedProduct.sellingPrice;
 
@@ -167,20 +194,39 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                                     customerName,
                                     customerPhone,
                                     paymentMethod,
+                                    region: region?.value || ''
                                 };
 
                                 addToCart(cartItem);
-                                toast.success(`${selectedProduct.name} added to cart! ✅`);
 
-                                // ✅ Reset quantity & price to prevent re-adding duplicates
+                                if (customerName || customerPhone || paymentMethod !== 'Cash' || region) {
+                                    try {
+                                        const res = await fetch('https://welcoming-backend.onrender.com/api/pending-cart/save', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ cart: [cartItem] }),
+                                        });
+
+                                        const data = await res.json();
+                                        if (!data.success) {
+                                            toast.warn('Saved to cart, but not synced to backend.');
+                                        }
+                                    } catch (err) {
+                                        console.error('Error syncing with backend:', err);
+                                        toast.warn('Saved locally, but failed to sync with backend.');
+                                    }
+                                }
+
+                                toast.success(`${selectedProduct.name} (${formatTZS(price)}) added to cart! ✅`);
+
                                 setQuantities((prev) => ({ ...prev, [selectedProduct._id]: 1 }));
                                 setPrices((prev) => ({ ...prev, [selectedProduct._id]: selectedProduct.sellingPrice }));
-
                                 setShowPopup(false);
                                 setSelectedProduct(null);
                                 setCustomerName('');
                                 setCustomerPhone('');
                                 setPaymentMethod('Cash');
+                                setRegion(null);
                             }}
                         >
                             Add to Cart

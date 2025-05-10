@@ -45,6 +45,22 @@
     scroll-behavior: smooth;
 }
 
+.checkoutBtn:disabled {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+
+.editablePrice {
+    width: 80px;
+    margin-left: 8px;
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+
 /* ✅ Gradient scrollbar (WebKit-based browsers like Chrome, Edge, Safari) */
 .items::-webkit-scrollbar {
     width: 10px;

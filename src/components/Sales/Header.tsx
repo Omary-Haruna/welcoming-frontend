@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import styles from './Header.module.css';
+import { AuthContext } from '../../context/AuthContext'; // Update path if needed
 
 const Header: React.FC = () => {
     const [dateTime, setDateTime] = useState<Date | null>(null);
-    const username = 'John';
+    const { user } = useContext(AuthContext);
+    const username = user?.name || 'User';
 
     useEffect(() => {
         setDateTime(new Date());
@@ -14,7 +16,6 @@ const Header: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Don't render time until component is mounted
     if (!dateTime) return null;
 
     const hour = dateTime.getHours();
