@@ -69,12 +69,15 @@ const SalesCart: React.FC = () => {
                 image: item.image,
                 quantity: item.quantity,
                 price: item.price,
+                buyingPrice: item.buyingPrice || item.price, // ✅ Added this line
                 total: item.quantity * item.price,
                 customerName: item.customerName || '',
                 customerPhone: item.customerPhone || '',
                 paymentMethod: item.paymentMethod || 'Cash',
                 region: item.region || '',
             })),
+            biller: JSON.parse(localStorage.getItem('user') || '{}').name || 'unknown'
+            // ✅ replace with actual logged-in username if available
         };
 
         const mergedItems = cart.reduce((acc, item) => {
@@ -121,6 +124,7 @@ const SalesCart: React.FC = () => {
             setLoading(false);
         }
     };
+
 
     return (
         <div className={styles.cart}>

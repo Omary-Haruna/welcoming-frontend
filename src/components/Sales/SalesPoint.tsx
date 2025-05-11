@@ -197,7 +197,8 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                                     customerName,
                                     customerPhone,
                                     paymentMethod,
-                                    region: region?.value || ''
+                                    region: region?.value || '',
+                                    buyingPrice: selectedProduct.sellingPrice
                                 };
 
                                 addToCart(newItem);

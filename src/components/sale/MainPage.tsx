@@ -27,6 +27,7 @@ const MainPage = () => {
                 const res = await fetch('https://welcoming-backend.onrender.com/api/sales/all');
                 const data = await res.json();
                 if (data.success) {
+                    console.log('✅ Raw sales data:', data.sales);
                     const formatted = data.sales.flatMap((sale: any) =>
                         sale.items.map((item: any) => ({
                             id: sale._id.slice(-8),
