@@ -31,17 +31,40 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [cart, setCartState] = useState<CartItem[]>([]);
 
     const addToCart = (item: Omit<CartItem, 'cartId' | 'total'>) => {
-        const safeQuantity = item.quantity > 0 ? item.quantity : 1;
-        const safeTotal = safeQuantity * item.price;
+        setCartState((prev) => {
+            const index = prev.findIndex(p => p.id === item.id);
 
-        const newItem: CartItem = {
-            ...item,
-            cartId: uuidv4(),
-            total: safeTotal,
-            quantity: safeQuantity,
-        };
+            if (index !== -1) {
+                const existing = prev[index];
+                const safeQuantity = item.quantity > 0 ? item.quantity : 1;
+                const newQuantity = existing.quantity + safeQuantity;
 
-        setCartState((prev) => [...prev, newItem]);
+                const updatedItem: CartItem = {
+                    ...existing,
+                    price: item.price, // ✅ update price
+                    buyingPrice: item.buyingPrice, // ✅ update buying price
+                    quantity: newQuantity,
+                    total: newQuantity * item.price,
+                };
+
+                const updatedCart = [...prev];
+                updatedCart[index] = updatedItem;
+                return updatedCart;
+            }
+
+            const safeQuantity = item.quantity > 0 ? item.quantity : 1;
+            const safeTotal = safeQuantity * item.price;
+
+            return [
+                ...prev,
+                {
+                    ...item,
+                    cartId: uuidv4(),
+                    quantity: safeQuantity,
+                    total: safeTotal,
+                }
+            ];
+        });
     };
 
     const removeFromCart = (cartId: string) => {

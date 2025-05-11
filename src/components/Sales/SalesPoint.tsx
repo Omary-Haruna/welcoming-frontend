@@ -11,6 +11,7 @@ interface Product {
     name: string;
     category: string;
     sellingPrice: number;
+    buyingPrice: number; // ✅ added
     image?: string;
 }
 
@@ -198,7 +199,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                                     customerPhone,
                                     paymentMethod,
                                     region: region?.value || '',
-                                    buyingPrice: selectedProduct.sellingPrice
+                                    buyingPrice: selectedProduct.buyingPrice // ✅ here it is
                                 };
 
                                 addToCart(newItem);

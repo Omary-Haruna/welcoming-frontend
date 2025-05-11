@@ -9,6 +9,8 @@ interface SaleItem {
     name: string;
     quantity: number;
     total: number;
+    price: number;
+    buyingPrice: number;
 }
 
 interface SaleSummary {
@@ -33,7 +35,6 @@ const SalesSummary: React.FC = () => {
             const data = await res.json();
 
             if (data.success) {
-                // ✅ Use range filtering for today's sales
                 const todayStart = new Date();
                 todayStart.setHours(0, 0, 0, 0);
 
@@ -119,6 +120,15 @@ const SalesSummary: React.FC = () => {
         (acc, s) => acc + s.items.reduce((sum, i) => sum + i.quantity, 0),
         0
     );
+    const totalProfit = summaries.reduce(
+        (acc, s) =>
+            acc +
+            s.items.reduce(
+                (sum, item) => sum + (item.price - item.buyingPrice) * item.quantity,
+                0
+            ),
+        0
+    );
 
     return (
         <div className={styles.container}>
@@ -136,40 +146,50 @@ const SalesSummary: React.FC = () => {
                             <th>Subtotal</th>
                             <th>Total</th>
                             <th>Items</th>
+                            <th>Profit</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {summaries.map((summary) => (
-                            <tr key={summary._id} className={styles.row}>
-                                <td>{new Date(summary.soldAt).toLocaleTimeString()}</td>
-                                <td>{formatTsh(summary.subtotal)}</td>
-                                <td>{formatTsh(summary.total)}</td>
-                                <td>
-                                    <ul className={styles.itemList}>
-                                        {summary.items.map((item, i) => (
-                                            <li key={i}>
-                                                {item.name} × {item.quantity} = {formatTsh(item.total)}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </td>
-                                <td className={styles.actions}>
-                                    <button title="Edit (coming soon)" disabled>
-                                        <Pencil size={16} />
-                                    </button>
-                                    <button onClick={() => handleDelete(summary._id)} title="Delete">
-                                        <Trash2 size={16} />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                        {summaries.map((summary) => {
+                            const rowProfit = summary.items.reduce(
+                                (sum, item) => sum + (item.price - item.buyingPrice) * item.quantity,
+                                0
+                            );
+
+                            return (
+                                <tr key={summary._id} className={styles.row}>
+                                    <td>{new Date(summary.soldAt).toLocaleTimeString()}</td>
+                                    <td>{formatTsh(summary.subtotal)}</td>
+                                    <td>{formatTsh(summary.total)}</td>
+                                    <td>
+                                        <ul className={styles.itemList}>
+                                            {summary.items.map((item, i) => (
+                                                <li key={i}>
+                                                    {item.name} × {item.quantity} = {formatTsh(item.total)}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </td>
+                                    <td><strong>{formatTsh(rowProfit)}</strong></td>
+                                    <td className={styles.actions}>
+                                        <button title="Edit (coming soon)" disabled>
+                                            <Pencil size={16} />
+                                        </button>
+                                        <button onClick={() => handleDelete(summary._id)} title="Delete">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
 
                         <tr className={styles.totalRow}>
                             <td><strong>Totals</strong></td>
                             <td></td>
                             <td><strong>{formatTsh(totalRevenue)}</strong></td>
                             <td><strong>{totalQuantity} items sold</strong></td>
+                            <td><strong>{formatTsh(totalProfit)}</strong></td>
                             <td></td>
                         </tr>
                     </tbody>
