@@ -1,7 +1,6 @@
-// src/components/inventories/ViewProducts/MainPage.tsx
 import { useState, useEffect } from 'react';
 import styles from './MainPage.module.css';
-import { Pencil, Save, Trash2 } from 'lucide-react';
+import { Pencil, Save, Trash2, AlertTriangle, Ban } from 'lucide-react';
 import Swal from 'sweetalert2';
 import HeaderTwo from './HeaderTwo';
 
@@ -47,6 +46,11 @@ export default function MainPage() {
         if (editIndex !== null) {
             const currentProduct = filteredProducts[editIndex];
             const updatedProduct = { ...editProduct };
+
+            if (updatedProduct.quantity !== undefined && updatedProduct.quantity < 0) {
+                Swal.fire('Error', 'Quantity cannot be negative.', 'error');
+                return;
+            }
 
             try {
                 await fetch(`https://welcoming-backend.onrender.com/api/products/update/${currentProduct._id}`, {
@@ -215,14 +219,14 @@ export default function MainPage() {
 
                         return (
                             <tr key={p._id} className={styles.row}>
-                                <td className={styles.td}>
+                                <td className={styles.td} data-label="Select">
                                     <input
                                         type="checkbox"
                                         checked={isSelected}
                                         onChange={() => handleSelect(p._id)}
                                     />
                                 </td>
-                                <td className={styles.td}>
+                                <td className={styles.td} data-label="Image">
                                     <img
                                         src={p.image || '/default-product.png'}
                                         alt={p.name}
@@ -232,27 +236,31 @@ export default function MainPage() {
 
                                 {isEditing ? (
                                     <>
-                                        <td className={styles.td}>
+                                        <td className={styles.td} data-label="Product">
                                             <input
                                                 value={editProduct.name || ''}
                                                 onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
                                             />
                                         </td>
-                                        <td className={styles.td}>
+                                        <td className={styles.td} data-label="Price">
                                             <input
                                                 type="number"
                                                 value={editProduct.sellingPrice || ''}
-                                                onChange={(e) => setEditProduct({ ...editProduct, sellingPrice: Number(e.target.value) })}
+                                                onChange={(e) =>
+                                                    setEditProduct({ ...editProduct, sellingPrice: Number(e.target.value) })
+                                                }
                                             />
                                         </td>
-                                        <td className={styles.td}>
+                                        <td className={styles.td} data-label="Quantity">
                                             <input
                                                 type="number"
                                                 value={editProduct.quantity || ''}
-                                                onChange={(e) => setEditProduct({ ...editProduct, quantity: Number(e.target.value) })}
+                                                onChange={(e) =>
+                                                    setEditProduct({ ...editProduct, quantity: Number(e.target.value) })
+                                                }
                                             />
                                         </td>
-                                        <td className={styles.td}>
+                                        <td className={styles.td} data-label="Category">
                                             <input
                                                 value={editProduct.category || ''}
                                                 onChange={(e) => setEditProduct({ ...editProduct, category: e.target.value })}
@@ -261,14 +269,26 @@ export default function MainPage() {
                                     </>
                                 ) : (
                                     <>
-                                        <td className={styles.td}>{p.name}</td>
-                                        <td className={styles.td}>{p.sellingPrice.toLocaleString()} TZS</td>
-                                        <td className={styles.td}>{p.quantity}</td>
-                                        <td className={styles.td}>{p.category}</td>
+                                        <td className={styles.td} data-label="Product">{p.name}</td>
+                                        <td className={styles.td} data-label="Price">{p.sellingPrice.toLocaleString()} TZS</td>
+                                        <td className={styles.td} data-label="Qty">
+                                            {p.quantity === 0 ? (
+                                                <span style={{ color: 'red', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                    <Ban size={14} /> Out of Stock
+                                                </span>
+                                            ) : p.quantity > 0 && p.quantity < 5 ? (
+                                                <span style={{ color: 'orange', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                    <AlertTriangle size={14} /> Low Stock ({p.quantity} pcs left)
+                                                </span>
+                                            ) : (
+                                                `${p.quantity}`
+                                            )}
+                                        </td>
+                                        <td className={styles.td} data-label="Category">{p.category}</td>
                                     </>
                                 )}
 
-                                <td className={styles.td}>
+                                <td className={styles.td} data-label="Actions">
                                     {isEditing ? (
                                         <button className={styles.iconBtn} onClick={handleSave}>
                                             <Save size={16} />
@@ -286,6 +306,7 @@ export default function MainPage() {
                         );
                     })}
                 </tbody>
+
 
                 <tfoot>
                     <tr className={styles.row}>

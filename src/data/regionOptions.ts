@@ -1,0 +1,7 @@
+// regionOptions.ts
+export const regionOptions = [
+    'Arusha', 'Dar es Salaam', 'Dodoma', 'Geita', 'Iringa', 'Kagera', 'Katavi', 'Kigoma', 'Kilimanjaro',
+    'Lindi', 'Manyara', 'Mara', 'Mbeya', 'Morogoro', 'Mtwara', 'Mwanza', 'Njombe', 'Pemba North',
+    'Pemba South', 'Pwani', 'Rukwa', 'Ruvuma', 'Shinyanga', 'Simiyu', 'Singida', 'Tabora',
+    'Tanga', 'Zanzibar North', 'Zanzibar South', 'Zanzibar West', 'Zanzibar Urban/West'
+].map(region => ({ value: region, label: region }));

@@ -11,7 +11,7 @@ interface Product {
     name: string;
     category: string;
     sellingPrice: number;
-    buyingPrice: number; // ✅ added
+    buyingPrice: number;
     image?: string;
 }
 
@@ -44,17 +44,44 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
         label: 'Dar es Salaam'
     });
 
+    // ✅ Fetch product quantity by ID from backend
+    const fetchProductQuantity = async (productId: string) => {
+        try {
+            const res = await fetch(`https://welcoming-backend.onrender.com/api/products/quantity/${productId}`);
+            const data = await res.json();
+            if (data.success) {
+                return data.quantity;
+            } else {
+                toast.error(data.message);
+                return null;
+            }
+        } catch (err) {
+            console.error('Error fetching quantity:', err);
+            toast.error('Could not fetch quantity');
+            return null;
+        }
+    };
+
+    // ✅ Show popup only if product is in stock
+    const handleSell = async (product: Product) => {
+        const quantity = await fetchProductQuantity(product._id);
+
+        if (quantity === null) return;
+        if (quantity === 0) {
+            toast.error(`${product.name} is out of stock! ❌`);
+            return;
+        }
+
+        setSelectedProduct(product);
+        setShowPopup(true);
+    };
+
     const handleQuantityChange = (id: string, value: number) => {
         setQuantities((prev) => ({ ...prev, [id]: value }));
     };
 
     const handlePriceChange = (id: string, value: number) => {
         setPrices((prev) => ({ ...prev, [id]: value }));
-    };
-
-    const handleSell = (product: Product) => {
-        setSelectedProduct(product);
-        setShowPopup(true);
     };
 
     const formatTZS = (amount: number) => `Tsh ${amount.toLocaleString()}`;
@@ -199,7 +226,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                                     customerPhone,
                                     paymentMethod,
                                     region: region?.value || '',
-                                    buyingPrice: selectedProduct.buyingPrice // ✅ here it is
+                                    buyingPrice: selectedProduct.buyingPrice
                                 };
 
                                 addToCart(newItem);

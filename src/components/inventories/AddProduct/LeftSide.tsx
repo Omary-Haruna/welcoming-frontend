@@ -104,7 +104,18 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
             const worksheet = workbook.Sheets[sheetName];
             const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet);
 
-            for (const item of jsonData) {
+            const errorLines: number[] = [];
+
+            for (let i = 0; i < jsonData.length; i++) {
+                const item = jsonData[i];
+                const buyingPrice = parseFloat(item['Buying Price']);
+                const sellingPrice = parseFloat(item['Selling Price']);
+
+                if (buyingPrice > sellingPrice) {
+                    errorLines.push(i + 2); // +2 to match Excel line number (1 for header, 1 for zero-index)
+                    continue; // Skip adding this product
+                }
+
                 let imageUrl = '';
 
                 if (item.Image?.startsWith('http')) {
@@ -134,13 +145,24 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
                 });
             }
 
-            Swal.fire('Success', 'Products imported successfully!', 'success');
-            fetchProducts();
             setLoading(false); // ✨ Hide loading
+
+            if (errorLines.length > 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Import Error',
+                    html: `Buying price can't be higher than selling price.<br>Error on line(s): <strong>${errorLines.join(', ')}</strong>`,
+                });
+            } else {
+                Swal.fire('Success', 'Products imported successfully!', 'success');
+            }
+
+            fetchProducts();
         };
 
         reader.readAsArrayBuffer(file);
     };
+
 
     const pickLocalFile = async (): Promise<File | null> => {
         return new Promise((resolve) => {

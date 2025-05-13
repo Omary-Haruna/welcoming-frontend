@@ -10,7 +10,7 @@ interface SaleItem {
     quantity: number;
     total: number;
     price: number;
-    buyingPrice: number;
+    buyingPrice?: number;
 }
 
 interface SaleSummary {
@@ -93,20 +93,10 @@ const SalesSummary: React.FC = () => {
         return (
             <div className={styles.container}>
                 <h2 className={styles.title}>Sales Summary</h2>
-                <motion.p
-                    className={styles.empty}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                >
+                <motion.p className={styles.empty} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
                     No sales recorded today.
                 </motion.p>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className={styles.linkPrompt}
-                >
+                <motion.div className={styles.linkPrompt} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
                     <Link href="/sales/sales-list" className={styles.link}>
                         Want more data? 👉 View full Sales List
                     </Link>
@@ -116,29 +106,16 @@ const SalesSummary: React.FC = () => {
     }
 
     const totalRevenue = summaries.reduce((acc, s) => acc + s.total, 0);
-    const totalQuantity = summaries.reduce(
-        (acc, s) => acc + s.items.reduce((sum, i) => sum + i.quantity, 0),
-        0
-    );
+    const totalQuantity = summaries.reduce((acc, s) => acc + s.items.reduce((sum, i) => sum + i.quantity, 0), 0);
     const totalProfit = summaries.reduce(
-        (acc, s) =>
-            acc +
-            s.items.reduce(
-                (sum, item) => sum + (item.price - item.buyingPrice) * item.quantity,
-                0
-            ),
+        (acc, s) => acc + s.items.reduce((sum, i) => sum + (i.price - (i.buyingPrice ?? i.price)) * i.quantity, 0),
         0
     );
 
     return (
         <div className={styles.container}>
             <h2 className={styles.title}>Today's Sales Summary</h2>
-            <motion.div
-                className={styles.tableWrapper}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-            >
+            <motion.div className={styles.tableWrapper} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                 <table className={styles.table}>
                     <thead>
                         <tr>
@@ -153,55 +130,62 @@ const SalesSummary: React.FC = () => {
                     <tbody>
                         {summaries.map((summary) => {
                             const rowProfit = summary.items.reduce(
-                                (sum, item) => sum + (item.price - item.buyingPrice) * item.quantity,
+                                (sum, i) => sum + (i.price - (i.buyingPrice ?? i.price)) * i.quantity,
                                 0
                             );
+                            const profitPercent = summary.total > 0 ? ((rowProfit / summary.total) * 100).toFixed(1) : '0';
 
                             return (
                                 <tr key={summary._id} className={styles.row}>
-                                    <td>{new Date(summary.soldAt).toLocaleTimeString()}</td>
+                                    <td>{new Date(summary.soldAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</td>
                                     <td>{formatTsh(summary.subtotal)}</td>
                                     <td>{formatTsh(summary.total)}</td>
                                     <td>
                                         <ul className={styles.itemList}>
-                                            {summary.items.map((item, i) => (
-                                                <li key={i}>
-                                                    {item.name} × {item.quantity} = {formatTsh(item.total)}
-                                                </li>
-                                            ))}
+                                            {summary.items.map((item, i) => {
+                                                const profit = (item.price - (item.buyingPrice ?? item.price)) * item.quantity;
+                                                return (
+                                                    <li key={i}>
+                                                        {item.name} × {item.quantity} = {formatTsh(item.total)}{' '}
+                                                        <span style={{ color: profit < 0 ? 'red' : 'green' }}>
+                                                            (Profit: {formatTsh(profit)})
+                                                        </span>
+                                                    </li>
+                                                );
+                                            })}
                                         </ul>
                                     </td>
-                                    <td><strong>{formatTsh(rowProfit)}</strong></td>
+                                    <td>
+                                        <span style={{ color: rowProfit < 0 ? 'red' : 'green' }}>
+                                            <strong>{formatTsh(rowProfit)}</strong>
+                                        </span>
+                                        <br />
+                                        <small>{profitPercent}%</small>
+                                    </td>
                                     <td className={styles.actions}>
-                                        <button title="Edit (coming soon)" disabled>
-                                            <Pencil size={16} />
-                                        </button>
-                                        <button onClick={() => handleDelete(summary._id)} title="Delete">
-                                            <Trash2 size={16} />
-                                        </button>
+                                        <button title="Edit (coming soon)" disabled><Pencil size={16} /></button>
+                                        <button onClick={() => handleDelete(summary._id)} title="Delete"><Trash2 size={16} /></button>
                                     </td>
                                 </tr>
                             );
                         })}
-
                         <tr className={styles.totalRow}>
                             <td><strong>Totals</strong></td>
                             <td></td>
                             <td><strong>{formatTsh(totalRevenue)}</strong></td>
-                            <td><strong>{totalQuantity} items sold</strong></td>
-                            <td><strong>{formatTsh(totalProfit)}</strong></td>
+                            <td><strong>{totalQuantity} items</strong></td>
+                            <td>
+                                <strong style={{ color: totalProfit < 0 ? 'red' : 'green' }}>
+                                    {formatTsh(totalProfit)}
+                                </strong>
+                            </td>
                             <td></td>
                         </tr>
                     </tbody>
                 </table>
             </motion.div>
 
-            <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className={styles.linkPrompt}
-            >
+            <motion.div className={styles.linkPrompt} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                 <Link href="/sales/sales-list" className={styles.link}>
                     View full Sales List here
                 </Link>
