@@ -5,8 +5,6 @@ import AddNewCustomer from "../../components/make-order/AddNewCustomer";
 import ProductSelector from "../../components/make-order/ProductSelector";
 import CartSummary from "../../components/make-order/CartSummary";
 import OrderSummary from "../../components/make-order/OrderSummary";
-import OrderNotes from "../../components/make-order/OrderNotes";
-import SubmitOrder from "../../components/make-order/SubmitOrder";
 import { fetchData } from "../../utils/api";
 
 const AddOrderPage = () => {
@@ -62,8 +60,6 @@ const AddOrderPage = () => {
             <ProductSelector products={products} onAddToCart={handleAddToCart} />
             <CartSummary customer={selectedCustomer} cart={cartItems} onRemoveItem={handleRemoveItem} />
             <OrderSummary orders={sales} />
-            <OrderNotes />
-            <SubmitOrder sales={sales} />
         </div>
     );
 };
