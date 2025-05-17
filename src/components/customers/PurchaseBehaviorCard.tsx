@@ -8,14 +8,27 @@ import {
     CreditCard,
 } from 'lucide-react';
 
-const PurchaseBehaviorCard = ({ stats = {} }) => {
+interface Stats {
+    commonProducts: { name: string; count: number }[];
+    purchaseFrequency: string;
+    avgSpend: number;
+    repeatBuyers: number;
+    oneTimeBuyers: number;
+    paymentMethods: Record<string, number>;
+}
+
+interface Props {
+    stats: Stats;
+}
+
+const PurchaseBehaviorCard: React.FC<Props> = ({ stats }) => {
     const {
-        commonProducts = ['HP Laptop', 'iPhone 14 Pro', 'Wireless Mouse'],
-        purchaseFrequency = 'Weekly',
-        avgSpend = 735000,
-        repeatBuyers = 123,
-        oneTimeBuyers = 45,
-        paymentMethods = { Cash: 60, MobileMoney: 30, Bank: 10 },
+        commonProducts = [],
+        purchaseFrequency = 'N/A',
+        avgSpend = 0,
+        repeatBuyers = 0,
+        oneTimeBuyers = 0,
+        paymentMethods = {},
     } = stats;
 
     return (
@@ -24,47 +37,47 @@ const PurchaseBehaviorCard = ({ stats = {} }) => {
             <p className={styles.subtext}>Insights from customer buying patterns</p>
 
             <div className={styles.statsGrid}>
+                {/* Top Products */}
                 <div className={styles.statCard}>
-                    <div className={styles.icon}><ShoppingCart size={20} /></div>
-                    <div className={styles.statContent}>
-                        <span className={styles.label}>Top Products</span>
-                        <span className={styles.value}>
-                            {commonProducts.slice(0, 3).join(', ')}
-                        </span>
+                    <div className={styles.statHeader}><ShoppingCart size={20} /><span>Top Products</span></div>
+                    <div className={styles.statValue}>
+                        {commonProducts.length > 0 ? (
+                            <ol className={styles.productList}>
+                                {commonProducts.slice(0, 5).map((p, index) => (
+                                    <li key={index}>
+                                        {p.name} ({p.count} pcs sold)
+                                    </li>
+                                ))}
+                            </ol>
+                        ) : 'N/A'}
                     </div>
                 </div>
 
+                {/* Purchase Frequency */}
                 <div className={styles.statCard}>
-                    <div className={styles.icon}><CalendarCheck2 size={20} /></div>
-                    <div className={styles.statContent}>
-                        <span className={styles.label}>Purchase Frequency</span>
-                        <span className={styles.value}>{purchaseFrequency}</span>
-                    </div>
+                    <div className={styles.statHeader}><CalendarCheck2 size={20} /><span>Purchase Frequency</span></div>
+                    <div className={styles.statValue}>{purchaseFrequency}</div>
                 </div>
 
+                {/* Average Spend */}
                 <div className={styles.statCard}>
-                    <div className={styles.icon}><Wallet size={20} /></div>
-                    <div className={styles.statContent}>
-                        <span className={styles.label}>Avg. Spend per Customer</span>
-                        <span className={styles.value}>TZS {avgSpend.toLocaleString()}</span>
-                    </div>
+                    <div className={styles.statHeader}><Wallet size={20} /><span>Avg. Spend per Customer</span></div>
+                    <div className={styles.statValue}>TZS {avgSpend.toLocaleString()}</div>
                 </div>
 
+                {/* Repeat vs One-Time */}
                 <div className={styles.statCard}>
-                    <div className={styles.icon}><Repeat2 size={20} /></div>
-                    <div className={styles.statContent}>
-                        <span className={styles.label}>Repeat vs One-Time</span>
-                        <span className={styles.value}>{repeatBuyers} 🔁 / {oneTimeBuyers} 🧍</span>
-                    </div>
+                    <div className={styles.statHeader}><Repeat2 size={20} /><span>Repeat vs One-Time</span></div>
+                    <div className={styles.statValue}>{repeatBuyers} 🔁 / {oneTimeBuyers} 🧍</div>
                 </div>
 
+                {/* Payment Methods */}
                 <div className={styles.statCard}>
-                    <div className={styles.icon}><CreditCard size={20} /></div>
-                    <div className={styles.statContent}>
-                        <span className={styles.label}>Payment Methods</span>
-                        <span className={styles.value}>
-                            {Object.entries(paymentMethods).map(([method, percent]) => `${method} (${percent}%)`).join(', ')}
-                        </span>
+                    <div className={styles.statHeader}><CreditCard size={20} /><span>Payment Methods</span></div>
+                    <div className={styles.statValue}>
+                        {Object.entries(paymentMethods)
+                            .map(([method, percent]) => `${method} (${percent}%)`)
+                            .join(', ') || 'N/A'}
                     </div>
                 </div>
             </div>

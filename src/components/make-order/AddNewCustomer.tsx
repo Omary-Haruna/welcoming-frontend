@@ -2,17 +2,24 @@ import React, { useState } from 'react';
 import Select from 'react-select';
 import styles from './AddNewCustomer.module.css';
 import { regionOptions } from '../../data/regionOptions';
+import { regionDistricts } from '../../data/regionDistricts';
 import { UserPlus } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 const AddNewCustomer = () => {
     const [region, setRegion] = useState<{ value: string; label: string } | null>(null);
+    const [district, setDistrict] = useState<{ value: string; label: string } | null>(null);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const handleRegionChange = (selected: any) => {
+        setRegion(selected);
+        setDistrict(null); // reset district on region change
+    };
+
     const handleAddCustomer = async () => {
-        if (!name || !region || !phone) {
+        if (!name || !region || !district || !phone) {
             Swal.fire('Missing Info', 'Please fill in all fields.', 'warning');
             return;
         }
@@ -22,6 +29,7 @@ const AddNewCustomer = () => {
             html: `
                 <p><strong>Name:</strong> ${name}</p>
                 <p><strong>Region:</strong> ${region.label}</p>
+                <p><strong>District:</strong> ${district.label}</p>
                 <p><strong>Phone:</strong> ${phone}</p>
             `,
             icon: 'question',
@@ -33,16 +41,22 @@ const AddNewCustomer = () => {
         if (result.isConfirmed) {
             setLoading(true);
 
-            // Simulate saving (you can add fetch/axios here)
+            // Simulate saving (replace with API call)
             setTimeout(() => {
                 setLoading(false);
                 Swal.fire('Success', 'Customer successfully added!', 'success');
                 setName('');
                 setRegion(null);
+                setDistrict(null);
                 setPhone('');
             }, 1000);
         }
     };
+
+    // Generate district options from selected region
+    const districtOptions = region?.value
+        ? regionDistricts[region.value]?.map((d) => ({ value: d, label: d })) || []
+        : [];
 
     return (
         <div className={styles.box} style={{ gridArea: 'addNewCustomer' }}>
@@ -60,9 +74,19 @@ const AddNewCustomer = () => {
                 options={regionOptions}
                 placeholder="Select Region"
                 value={region}
-                onChange={(selected) => setRegion(selected)}
+                onChange={handleRegionChange}
                 className={styles.select}
             />
+
+            {region && (
+                <Select
+                    options={districtOptions}
+                    placeholder="Select District"
+                    value={district}
+                    onChange={(selected) => setDistrict(selected)}
+                    className={styles.select}
+                />
+            )}
 
             <input
                 className={styles.input}

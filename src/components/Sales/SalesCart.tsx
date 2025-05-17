@@ -17,10 +17,8 @@ const SalesCart: React.FC = () => {
     const formatTZS = (amount: number) => `Tsh ${amount.toLocaleString()}`;
 
     useEffect(() => {
-        // Start with fresh cart always — skip loading
-        setLoaded(true);
+        setLoaded(true); // allow syncing
     }, []);
-
 
     useEffect(() => {
         if (!loaded || justLoaded) {
@@ -56,28 +54,29 @@ const SalesCart: React.FC = () => {
         });
 
         if (!result.isConfirmed) return;
-
         setLoading(true);
+
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
 
         const saleData = {
             soldAt: new Date().toISOString(),
             subtotal: totalAmount,
             total: totalAmount,
+            biller: user?.name || 'unknown',
             items: cart.map(item => ({
                 id: item.id,
                 name: item.name,
                 image: item.image,
                 quantity: item.quantity,
                 price: item.price,
-                buyingPrice: item.buyingPrice || item.price, // ✅ Added this line
+                buyingPrice: item.buyingPrice || item.price,
                 total: item.quantity * item.price,
                 customerName: item.customerName || '',
                 customerPhone: item.customerPhone || '',
                 paymentMethod: item.paymentMethod || 'Cash',
                 region: item.region || '',
+                district: item.district || '', // ✅ Include district
             })),
-            biller: JSON.parse(localStorage.getItem('user') || '{}').name || 'unknown'
-            // ✅ replace with actual logged-in username if available
         };
 
         const mergedItems = cart.reduce((acc, item) => {
@@ -124,7 +123,6 @@ const SalesCart: React.FC = () => {
             setLoading(false);
         }
     };
-
 
     return (
         <div className={styles.cart}>

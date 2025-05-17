@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import styles from './SalesPoint.module.css';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-toastify';
 import { Search } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import Swal from 'sweetalert2';
+import { regionOptions } from '../../data/regionOptions';
+import { regionDistricts } from '../../data/regionDistricts';
 
 interface Product {
     _id: string;
@@ -21,13 +24,6 @@ interface Props {
     products: Product[];
 }
 
-const regionOptions = [
-    'Arusha', 'Dar es Salaam', 'Dodoma', 'Geita', 'Iringa', 'Kagera', 'Katavi', 'Kigoma', 'Kilimanjaro',
-    'Lindi', 'Manyara', 'Mara', 'Mbeya', 'Morogoro', 'Mtwara', 'Mwanza', 'Njombe', 'Pemba North',
-    'Pemba South', 'Pwani', 'Rukwa', 'Ruvuma', 'Shinyanga', 'Simiyu', 'Singida', 'Tabora',
-    'Tanga', 'Zanzibar North', 'Zanzibar South', 'Zanzibar West', 'Zanzibar Urban/West'
-].map(region => ({ value: region, label: region }));
-
 const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) => {
     const { addToCart } = useCart();
 
@@ -39,54 +35,95 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
     const [customerName, setCustomerName] = useState('');
     const [customerPhone, setCustomerPhone] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('Cash');
-    const [region, setRegion] = useState<{ value: string; label: string }>({
-        value: 'Dar es Salaam',
-        label: 'Dar es Salaam'
-    });
+    const [region, setRegion] = useState<{ value: string; label: string }>({ value: 'Dar es Salaam', label: 'Dar es Salaam' });
+    const [districtOptions, setDistrictOptions] = useState<{ value: string; label: string }[]>([]);
+    const [district, setDistrict] = useState<{ value: string; label: string } | null>(null);
 
-    // ✅ Fetch product quantity by ID from backend
+    const [lastCustomerInfo, setLastCustomerInfo] = useState<{
+        name: string;
+        phone: string;
+        region: { value: string; label: string };
+        district?: { value: string; label: string };
+        paymentMethod: string;
+    } | null>(null);
+
+    useEffect(() => {
+        const saved = localStorage.getItem('lastCustomerInfo');
+        if (saved) setLastCustomerInfo(JSON.parse(saved));
+    }, []);
+
+    useEffect(() => {
+        if (lastCustomerInfo) localStorage.setItem('lastCustomerInfo', JSON.stringify(lastCustomerInfo));
+    }, [lastCustomerInfo]);
+
     const fetchProductQuantity = async (productId: string) => {
         try {
             const res = await fetch(`https://welcoming-backend.onrender.com/api/products/quantity/${productId}`);
             const data = await res.json();
-            if (data.success) {
-                return data.quantity;
-            } else {
-                toast.error(data.message);
-                return null;
-            }
-        } catch (err) {
-            console.error('Error fetching quantity:', err);
+            return data.success ? data.quantity : null;
+        } catch {
             toast.error('Could not fetch quantity');
             return null;
         }
     };
 
-    // ✅ Show popup only if product is in stock
     const handleSell = async (product: Product) => {
         const quantity = await fetchProductQuantity(product._id);
-
-        if (quantity === null) return;
-        if (quantity === 0) {
+        if (quantity === null || quantity === 0) {
             toast.error(`${product.name} is out of stock! ❌`);
             return;
+        }
+
+        if (lastCustomerInfo) {
+            const result = await Swal.fire({
+                title: 'Use previous customer info?',
+                text: `Name: ${lastCustomerInfo?.name || 'N/A'}, Phone: ${lastCustomerInfo?.phone || 'N/A'}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No'
+            });
+
+            if (result.isConfirmed) {
+                setCustomerName(lastCustomerInfo.name || '');
+                setCustomerPhone(lastCustomerInfo.phone || '');
+                setRegion(lastCustomerInfo.region);
+                setDistrict(lastCustomerInfo.district || null);
+                setPaymentMethod(lastCustomerInfo.paymentMethod);
+                const districts = regionDistricts[lastCustomerInfo.region.value] || [];
+                setDistrictOptions(districts.map(d => ({ value: d, label: d })));
+            } else {
+                setCustomerName('');
+                setCustomerPhone('');
+                setRegion({ value: 'Dar es Salaam', label: 'Dar es Salaam' });
+                setDistrict(null);
+                setDistrictOptions([]);
+                setPaymentMethod('Cash');
+            }
         }
 
         setSelectedProduct(product);
         setShowPopup(true);
     };
 
+    const handleRegionChange = (selected: any) => {
+        setRegion(selected);
+        const districts = regionDistricts[selected.value] || [];
+        setDistrictOptions(districts.map((d) => ({ value: d, label: d })));
+        setDistrict(null);
+    };
+
     const handleQuantityChange = (id: string, value: number) => {
-        setQuantities((prev) => ({ ...prev, [id]: value }));
+        setQuantities(prev => ({ ...prev, [id]: value }));
     };
 
     const handlePriceChange = (id: string, value: number) => {
-        setPrices((prev) => ({ ...prev, [id]: value }));
+        setPrices(prev => ({ ...prev, [id]: value }));
     };
 
     const formatTZS = (amount: number) => `Tsh ${amount.toLocaleString()}`;
 
-    const filteredProducts = products.filter((product) => {
+    const filteredProducts = products.filter(product => {
         const matchCategory = category === 'All' || product.category === category;
         const matchSearch = product.name.toLowerCase().includes(search.toLowerCase());
         return matchCategory && matchSearch;
@@ -94,6 +131,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
 
     return (
         <div className={styles.container}>
+            {/* Search and Category Filter */}
             <div className={styles.searchControls}>
                 <div className={styles.searchWrapper}>
                     <Search className={styles.searchIcon} size={18} />
@@ -118,6 +156,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                 </select>
             </div>
 
+            {/* Product Cards */}
             <div className={styles.grid}>
                 {filteredProducts.map((product) => {
                     const quantity = quantities[product._id] ?? 1;
@@ -160,6 +199,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                 })}
             </div>
 
+            {/* Popup */}
             {showPopup && selectedProduct && (
                 <div className={styles.popupOverlay}>
                     <div className={styles.popup}>
@@ -168,7 +208,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
 
                         <input
                             type="text"
-                            placeholder="Customer Name (optional)"
+                            placeholder="Customer Name"
                             value={customerName}
                             onChange={(e) => setCustomerName(e.target.value)}
                             className={styles.popupInput}
@@ -176,7 +216,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
 
                         <input
                             type="text"
-                            placeholder="Customer Phone (optional)"
+                            placeholder="Customer Phone"
                             value={customerPhone}
                             onChange={(e) => setCustomerPhone(e.target.value)}
                             className={styles.popupInput}
@@ -184,11 +224,21 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
 
                         <Select
                             options={regionOptions}
-                            placeholder="Select Region..."
+                            placeholder="Select Region"
                             value={region}
-                            onChange={(selected) => setRegion(selected as { value: string; label: string })}
+                            onChange={handleRegionChange}
                             className={styles.popupSelect}
                         />
+
+                        {districtOptions.length > 0 && (
+                            <Select
+                                options={districtOptions}
+                                placeholder="Select District"
+                                value={district}
+                                onChange={(selected) => setDistrict(selected)}
+                                className={styles.popupSelect}
+                            />
+                        )}
 
                         <select
                             value={paymentMethod}
@@ -226,29 +276,34 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                                     customerPhone,
                                     paymentMethod,
                                     region: region?.value || '',
+                                    district: district?.value || '',
                                     buyingPrice: selectedProduct.buyingPrice
                                 };
 
                                 addToCart(newItem);
 
+                                if (customerName && customerPhone) {
+                                    setLastCustomerInfo({
+                                        name: customerName,
+                                        phone: customerPhone,
+                                        region,
+                                        district,
+                                        paymentMethod
+                                    });
+                                }
+
                                 toast.success(`${selectedProduct.name} (${formatTZS(price)}) added to cart! ✅`);
 
-                                setQuantities((prev) => ({ ...prev, [selectedProduct._id]: 1 }));
-                                setPrices((prev) => ({ ...prev, [selectedProduct._id]: selectedProduct.sellingPrice }));
+                                setQuantities(prev => ({ ...prev, [selectedProduct._id]: 1 }));
+                                setPrices(prev => ({ ...prev, [selectedProduct._id]: selectedProduct.sellingPrice }));
                                 setShowPopup(false);
                                 setSelectedProduct(null);
-                                setCustomerName('');
-                                setCustomerPhone('');
-                                setPaymentMethod('Cash');
-                                setRegion({ value: 'Dar es Salaam', label: 'Dar es Salaam' });
                             }}
                         >
                             Add to Cart
                         </button>
 
-                        <button className={styles.closeBtn} onClick={() => setShowPopup(false)}>
-                            Cancel
-                        </button>
+                        <button className={styles.closeBtn} onClick={() => setShowPopup(false)}>Cancel</button>
                     </div>
                 </div>
             )}

@@ -1,10 +1,28 @@
 import React, { useState } from 'react';
 import styles from './customtable.module.css';
 
+interface Product {
+    name: string;
+    price: number;
+}
+
+interface Customer {
+    id: string;
+    name: string;
+    region: string;
+    joinedDate: string;
+    returning: boolean;
+    products: Product[];
+}
+
+interface Props {
+    customers: Customer[];
+}
+
 const ITEMS_PER_PAGE = 9;
 
-export default function CustomerTable({ customers }) {
-    const [selectedCustomers, setSelectedCustomers] = useState([]);
+const CustomerTable: React.FC<Props> = ({ customers }) => {
+    const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     const totalPages = Math.ceil(customers.length / ITEMS_PER_PAGE);
@@ -20,86 +38,72 @@ export default function CustomerTable({ customers }) {
         }
     };
 
-    const toggleSelectOne = (id) => {
+    const toggleSelectOne = (id: string) => {
         setSelectedCustomers((prev) =>
             prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
         );
     };
 
-    const getAvatar = (gender) => {
-        return gender === 'female' ? '👩' : gender === 'male' ? '👨' : '🧑';
-    };
-
-    const getStatusClass = (status) => {
-        return styles[`status${status.replace(/\s/g, '')}`] || '';
-    };
-
-    const formatPrice = (price) =>
+    const formatPrice = (price: number) =>
         price?.toLocaleString('en-TZ', { style: 'currency', currency: 'TZS', minimumFractionDigits: 0 });
 
     return (
         <div className={styles.tableWrapper}>
             <table className={styles.table}>
                 <thead className={styles.thead}>
-
                     <tr>
-                        <th>
-                            <input
-                                type="checkbox"
-                                checked={currentCustomers.every((c) => selectedCustomers.includes(c.id))}
-                                onChange={toggleSelectAll}
-                            />
-                        </th>
+                        <th><input type="checkbox" checked={currentCustomers.every((c) => selectedCustomers.includes(c.id))} onChange={toggleSelectAll} /></th>
                         <th>Name</th>
-                        <th>Product Bought</th>
-                        <th>Price</th>
+                        <th>Products Bought</th>
                         <th>Region</th>
                         <th>Joined</th>
-                        <th>Process</th>
                         <th>Returning</th>
                     </tr>
                 </thead>
                 <tbody>
                     {currentCustomers.length === 0 ? (
                         <tr>
-                            <td colSpan="8" className={styles.noData}>
-                                🚫 No data found.
-                            </td>
+                            <td colSpan={6} className={styles.noData}>🚫 No data found.</td>
                         </tr>
                     ) : (
-                        currentCustomers.map((customer) => (
-                            <tr key={customer.id} className={styles.row}>
-                                <td>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedCustomers.includes(customer.id)}
-                                        onChange={() => toggleSelectOne(customer.id)}
-                                    />
-                                </td>
-                                <td>{getAvatar(customer.gender)} {customer.name}</td>
-                                <td>{customer.productBought || '—'}</td>
-                                <td>{formatPrice(customer.price)}</td>
-                                <td>{customer.region}</td>
-                                <td>{customer.joinedDate}</td>
-                                <td className={getStatusClass(customer.process)}>{customer.process}</td>
-                                <td>{customer.returning ? '✅ Yes' : '❌ No'}</td>
-                            </tr>
-                        ))
+                        currentCustomers.map((customer) => {
+                            const totalSpent = customer.products?.reduce((sum, p) => sum + (p.price || 0), 0) || 0;
+
+                            return (
+                                <tr key={customer.id} className={styles.row}>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedCustomers.includes(customer.id)}
+                                            onChange={() => toggleSelectOne(customer.id)}
+                                        />
+                                    </td>
+                                    <td>{customer.name}</td>
+                                    <td>
+                                        <div style={{ whiteSpace: 'pre-line' }}>
+                                            {customer.products?.map((p, i) => (
+                                                <div key={i}>
+                                                    {p.name} ({formatPrice(p.price)})
+                                                </div>
+                                            ))}
+                                            <strong>Total: {formatPrice(totalSpent)}</strong>
+                                        </div>
+                                    </td>
+                                    <td>{customer.region}</td>
+                                    <td>{customer.joinedDate}</td>
+                                    <td style={{ color: customer.returning ? 'green' : 'red', fontWeight: 'bold' }}>
+                                        {customer.returning ? '✅ Yes' : '❌ No'}
+                                    </td>
+                                </tr>
+                            );
+                        })
                     )}
                 </tbody>
-
             </table>
 
-            {/* Pagination Controls (optional) */}
             <div className={styles.pagination}>
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((page) => {
-                        return (
-                            page === 1 ||
-                            page === totalPages ||
-                            (page >= currentPage && page <= currentPage + 3)
-                        );
-                    })
+                    .filter((page) => page === 1 || page === totalPages || (page >= currentPage && page <= currentPage + 3))
                     .map((page, index, arr) => {
                         const prevPage = arr[index - 1];
                         const showEllipsis = prevPage && page - prevPage > 1;
@@ -117,8 +121,8 @@ export default function CustomerTable({ customers }) {
                         );
                     })}
             </div>
-
-
         </div>
     );
-}
+};
+
+export default CustomerTable;

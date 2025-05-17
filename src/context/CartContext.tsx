@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface CartItem {
@@ -14,6 +14,7 @@ export interface CartItem {
     customerPhone?: string;
     paymentMethod?: string;
     region?: string;
+    district?: string; // ✅ Added district
 }
 
 interface CartContextType {
@@ -29,6 +30,60 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [cart, setCartState] = useState<CartItem[]>([]);
+    const [loaded, setLoaded] = useState(false);
+
+    // 🧠 Get unique cart key based on user
+    const getCartKey = () => {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        return `sales_cart_${user?.name || 'guest'}`;
+    };
+
+    // ✅ Load from localStorage or backend on startup
+    useEffect(() => {
+        const loadCart = async () => {
+            const key = getCartKey();
+            const stored = localStorage.getItem(key);
+
+            if (stored) {
+                try {
+                    setCart(JSON.parse(stored));
+                    return;
+                } catch (err) {
+                    console.error('Failed to parse local cart:', err);
+                }
+            }
+
+            // Try to fetch from backend
+            try {
+                const res = await fetch('https://welcoming-backend.onrender.com/api/pending-cart/get');
+                const data = await res.json();
+                if (data.success && data.cart) {
+                    setCart(data.cart);
+                }
+            } catch (err) {
+                console.error('Failed to fetch pending cart:', err);
+            }
+        };
+
+        loadCart().finally(() => setLoaded(true));
+    }, []);
+
+    // ✅ Save to localStorage and backend on change
+    useEffect(() => {
+        if (!loaded) return;
+
+        const key = getCartKey();
+        localStorage.setItem(key, JSON.stringify(cart));
+
+        // Sync to backend
+        if (cart.length > 0) {
+            fetch('https://welcoming-backend.onrender.com/api/pending-cart/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cart }),
+            }).catch((err) => console.error('Failed to sync cart to backend:', err));
+        }
+    }, [cart, loaded]);
 
     const addToCart = (item: Omit<CartItem, 'cartId' | 'total'>) => {
         setCartState((prev) => {
@@ -41,10 +96,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
                 const updatedItem: CartItem = {
                     ...existing,
-                    price: item.price, // ✅ update price
-                    buyingPrice: item.buyingPrice, // ✅ update buying price
+                    price: item.price,
+                    buyingPrice: item.buyingPrice,
                     quantity: newQuantity,
                     total: newQuantity * item.price,
+                    customerName: item.customerName,
+                    customerPhone: item.customerPhone,
+                    paymentMethod: item.paymentMethod,
+                    region: item.region,
+                    district: item.district,
                 };
 
                 const updatedCart = [...prev];
@@ -86,7 +146,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         );
     };
 
-    const clearCart = () => setCartState([]);
+    const clearCart = () => {
+        setCartState([]);
+
+        // Clear from backend
+        fetch('https://welcoming-backend.onrender.com/api/pending-cart/clear', {
+            method: 'DELETE',
+        }).catch((err) => console.error('Failed to clear backend cart:', err));
+
+        // Clear from localStorage
+        const key = getCartKey();
+        localStorage.removeItem(key);
+    };
 
     const setCart = (items: CartItem[]) => {
         const safeItems = items.map(item => ({

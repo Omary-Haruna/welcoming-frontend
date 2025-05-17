@@ -61,6 +61,13 @@
     justify-content: center;
 }
 
+.productList {
+    padding-left: 1rem;
+    margin: 0;
+    line-height: 1.6;
+}
+
+
 .statContent {
     display: flex;
     flex-direction: column;

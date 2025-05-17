@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { generateCustomers } from '../../utils/CustomerData';
 import CustomerHeader from '../../components/customers/Header';
 import Filter from '../../components/customers/Filter';
 import CustomerCards from '../../components/customers/CustomerCards';
@@ -11,7 +10,6 @@ export default function CustomerManagementPage() {
     const [customers, setCustomers] = useState([]);
     const [filters, setFilters] = useState({});
 
-    // ✅ Show only the first 3 cards by default
     const [visibleCards, setVisibleCards] = useState([
         'GeneralStatsCard',
         'PurchaseBehaviorCard',
@@ -19,9 +17,26 @@ export default function CustomerManagementPage() {
     ]);
 
     useEffect(() => {
-        const generated = generateCustomers(234); // You can adjust this number
-        setAllCustomers(generated);
-        setCustomers(generated);
+        const fetchCustomers = async () => {
+            try {
+                const res = await fetch('https://welcoming-backend.onrender.com/api/sales/customers');
+                const data = await res.json();
+
+                if (data.success && Array.isArray(data.customers)) {
+                    const enhanced = data.customers.map((c, index) => ({
+                        ...c,
+                        id: index.toString()
+                    }));
+
+                    setAllCustomers(enhanced);
+                    setCustomers(enhanced);
+                }
+            } catch (error) {
+                console.error('❌ Failed to fetch customers:', error);
+            }
+        };
+
+        fetchCustomers();
     }, []);
 
     const applyFilters = (filters) => {
@@ -33,24 +48,12 @@ export default function CustomerManagementPage() {
             );
         }
 
-        if (filters.gender) {
-            filtered = filtered.filter((c) => c.gender === filters.gender);
-        }
-
         if (filters.productBought) {
             filtered = filtered.filter((c) => c.productBought === filters.productBought);
         }
 
-        if (filters.quantity) {
-            filtered = filtered.filter((c) => c.quantity >= filters.quantity);
-        }
-
         if (filters.price) {
             filtered = filtered.filter((c) => c.price >= filters.price);
-        }
-
-        if (filters.frequency) {
-            filtered = filtered.filter((c) => c.frequency >= filters.frequency);
         }
 
         if (filters.region) {
@@ -63,14 +66,6 @@ export default function CustomerManagementPage() {
 
         if (filters.returning) {
             filtered = filtered.filter((c) => c.returning === true);
-        }
-
-        if (filters.process) {
-            filtered = filtered.filter((c) => c.process === filters.process);
-        }
-
-        if (filters.paymentMethod) {
-            filtered = filtered.filter((c) => c.paymentMethod === filters.paymentMethod);
         }
 
         setCustomers(filtered);
