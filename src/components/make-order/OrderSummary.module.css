@@ -1,0 +1,36 @@
+.box {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.orderList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.orderItem {
+    padding: 1rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+}
+
+.details {
+    font-size: 0.95rem;
+    color: #334155;
+}
+
+.details p {
+    margin: 2px 0;
+}

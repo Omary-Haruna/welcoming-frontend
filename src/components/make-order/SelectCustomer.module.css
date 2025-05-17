@@ -7,6 +7,25 @@
     z-index: 200;
 }
 
+.select {
+    margin-bottom: 1rem;
+}
+
+.chooseBtn {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.chooseBtn:hover {
+    background-color: #45a049;
+}
+
 
 
 @keyframes fadeIn {

@@ -1,16 +1,84 @@
-import React from "react";
+// ✅ CartSummary.tsx
+import React, { useState } from "react";
 import styles from "./CartSummary.module.css";
+import { X, PackagePlus } from "lucide-react";
+import OrderModal from "./OrderModal";
 
-const CartSummary = () => {
+const CartSummary = ({ customer, cart, onRemoveItem }) => {
+    const [showModal, setShowModal] = useState(false);
+
+    const totalAmount = cart?.reduce(
+        (sum, item) => sum + item.quantity * item.price,
+        0
+    );
+
+    const customerInfo = customer
+        ? `${customer.name} from ${customer.region}${customer.district ? ` (${customer.district})` : ""}`
+        : "";
+
     return (
         <div className={styles.box} style={{ gridArea: "cartSummary" }}>
             <h2>Cart Summary</h2>
-            <ul className={styles.list}>
-                <li className={styles.listItem}>Product A - 2 pcs</li>
-                <li className={styles.listItem}>Product B - 1 pc</li>
-            </ul>
 
-            <p>Total: $123.00</p>
+            {customer ? (
+                cart && cart.length > 0 ? (
+                    <>
+                        <p className={styles.customerMessage}>
+                            <strong>{customerInfo}</strong> has ordered:
+                        </p>
+                        <ul className={styles.productList}>
+                            {cart.map((item, idx) => (
+                                <li key={idx} className={styles.productItem}>
+                                    <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className={styles.image}
+                                    />
+                                    <div className={styles.details}>
+                                        <p className={styles.name}>
+                                            <strong>{item.name}</strong>
+                                        </p>
+                                        <p>Qty: {item.quantity}</p>
+                                        <p>Price: {Number(item.price).toLocaleString()} TZS</p>
+                                        <p>
+                                            Subtotal: {Number(item.quantity * item.price).toLocaleString()} TZS
+                                        </p>
+                                    </div>
+                                    <button
+                                        className={styles.removeBtn}
+                                        onClick={() => onRemoveItem(item)}
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                        <div className={styles.total}>
+                            Total: <strong>{totalAmount.toLocaleString()} TZS</strong>
+                        </div>
+
+                        <button
+                            onClick={() => setShowModal(true)}
+                            className={styles.createBtn}
+                        >
+                            <PackagePlus size={16} style={{ marginRight: "6px" }} />
+                            Create Order
+                        </button>
+                    </>
+                ) : (
+                    <p className={styles.customerMessage}>
+                        <strong>{customerInfo}</strong> has not selected any products yet.
+                    </p>
+                )
+            ) : (
+                <p className={styles.customerMessage}>No customer selected.</p>
+            )}
+
+            <OrderModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                customer={customer}
+            />
         </div>
     );
 };

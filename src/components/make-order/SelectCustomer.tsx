@@ -8,7 +8,7 @@ interface Customer {
     region: string;
 }
 
-const SelectCustomer = () => {
+const SelectCustomer = ({ onChoose }) => {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
 
@@ -29,6 +29,11 @@ const SelectCustomer = () => {
         ...customer
     }));
 
+    const handleChoose = () => {
+        onChoose(selectedCustomer); // send to AddOrderPage
+        alert(`Customer selected: ${selectedCustomer.name}`);
+    };
+
     return (
         <div className={styles.box} style={{ gridArea: "selectCustomer" }}>
             <h2>Select Customer</h2>
@@ -40,6 +45,11 @@ const SelectCustomer = () => {
                 isSearchable
                 className={styles.select}
             />
+            {selectedCustomer && (
+                <button onClick={handleChoose} className={styles.chooseBtn}>
+                    I choose this customer
+                </button>
+            )}
         </div>
     );
 };
