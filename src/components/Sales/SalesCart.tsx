@@ -17,7 +17,7 @@ const SalesCart: React.FC = () => {
     const formatTZS = (amount: number) => `Tsh ${amount.toLocaleString()}`;
 
     useEffect(() => {
-        setLoaded(true); // allow syncing
+        setLoaded(true);
     }, []);
 
     useEffect(() => {
@@ -57,12 +57,18 @@ const SalesCart: React.FC = () => {
         setLoading(true);
 
         const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const first = cart[0] || {};
 
         const saleData = {
             soldAt: new Date().toISOString(),
             subtotal: totalAmount,
             total: totalAmount,
             biller: user?.name || 'unknown',
+            customerName: first.customerName || '',
+            customerPhone: first.customerPhone || '',
+            region: first.region || '',
+            district: first.district || '',
+            paymentMethod: first.paymentMethod || 'Cash',
             items: cart.map(item => ({
                 id: item.id,
                 name: item.name,
@@ -70,12 +76,7 @@ const SalesCart: React.FC = () => {
                 quantity: item.quantity,
                 price: item.price,
                 buyingPrice: item.buyingPrice || item.price,
-                total: item.quantity * item.price,
-                customerName: item.customerName || '',
-                customerPhone: item.customerPhone || '',
-                paymentMethod: item.paymentMethod || 'Cash',
-                region: item.region || '',
-                district: item.district || '', // ✅ Include district
+                total: item.quantity * item.price
             })),
         };
 

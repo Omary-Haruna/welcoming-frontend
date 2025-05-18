@@ -4,7 +4,7 @@ import styles from "./CartSummary.module.css";
 import { X, PackagePlus } from "lucide-react";
 import OrderModal from "./OrderModal";
 
-const CartSummary = ({ customer, cart, onRemoveItem }) => {
+const CartSummary = ({ customer, cart, onRemoveItem, onSubmitOrder, clearCart }) => {
     const [showModal, setShowModal] = useState(false);
 
     const totalAmount = cart?.reduce(
@@ -15,6 +15,13 @@ const CartSummary = ({ customer, cart, onRemoveItem }) => {
     const customerInfo = customer
         ? `${customer.name} from ${customer.region}${customer.district ? ` (${customer.district})` : ""}`
         : "";
+
+    const handleOrderSubmit = (orderData) => {
+        onSubmitOrder(orderData);
+        clearCart();
+        setShowModal(false);
+        alert("✅ Order submitted successfully!");
+    };
 
     return (
         <div className={styles.box} style={{ gridArea: "cartSummary" }}>
@@ -77,7 +84,8 @@ const CartSummary = ({ customer, cart, onRemoveItem }) => {
             <OrderModal
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
-                customer={customer}
+                customer={{ ...customer, cart }}
+                onSubmitOrder={handleOrderSubmit}
             />
         </div>
     );

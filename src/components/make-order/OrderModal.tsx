@@ -4,7 +4,7 @@ import Select from "react-select";
 import { regionOptions } from "../../data/regionOptions";
 import { regionDistricts } from "../../data/regionDistricts";
 
-const OrderModal = ({ isOpen, onClose, customer }) => {
+const OrderModal = ({ isOpen, onClose, customer, onSubmitOrder }) => {
     const [fromRegion, setFromRegion] = useState({ value: "Dar es Salaam", label: "Dar es Salaam" });
     const [toRegion, setToRegion] = useState(null);
     const [toDistrict, setToDistrict] = useState(null);
@@ -13,20 +13,24 @@ const OrderModal = ({ isOpen, onClose, customer }) => {
 
     const handleSubmit = () => {
         if (!fromRegion || !toRegion || !toDistrict || !expectedDate || !parcelHandler) {
-            alert("Please fill in all fields.");
+            alert("Please fill all fields.");
             return;
         }
 
-        const orderDetails = {
-            customer: customer.name,
+        const order = {
+            customerName: customer?.name,
+            region: customer?.region,
+            district: customer?.district || null,
+            date: new Date().toISOString(),
             from: fromRegion.label,
             to: `${toRegion.label}, ${toDistrict.label}`,
             expectedDate,
             parcelHandler,
+            products: customer?.cart || [],
+            totalAmount: customer?.cart?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0,
         };
 
-        console.log("Order created:", orderDetails);
-        alert(`✅ Order created for ${orderDetails.customer} from ${orderDetails.from} to ${orderDetails.to}`);
+        onSubmitOrder(order);
         onClose();
     };
 
@@ -35,10 +39,14 @@ const OrderModal = ({ isOpen, onClose, customer }) => {
     return (
         <div className={styles.overlay}>
             <div className={styles.modal}>
-                <h2>Create Order</h2>
+                <h2>Create Order for {customer?.name}</h2>
 
                 <label>From Region</label>
-                <Select options={regionOptions} value={fromRegion} onChange={setFromRegion} />
+                <Select
+                    options={regionOptions}
+                    value={fromRegion}
+                    onChange={setFromRegion}
+                />
 
                 <label>To Region</label>
                 <Select

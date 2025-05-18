@@ -3,8 +3,7 @@
     grid-template-areas:
         "selectCustomer addNewCustomer"
         "productSelector cartSummary"
-        "paymentDetails orderNotes"
-        "submitOrder submitOrder";
+        "orderSummary orderSummary";
     gap: 1rem;
     padding: 1rem;
 }
@@ -16,8 +15,6 @@
             "addNewCustomer"
             "productSelector"
             "cartSummary"
-            "paymentDetails"
-            "orderNotes"
-            "submitOrder";
+            "orderSummary";
     }
 }

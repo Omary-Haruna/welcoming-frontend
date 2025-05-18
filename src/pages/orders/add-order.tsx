@@ -11,7 +11,8 @@ const AddOrderPage = () => {
     const [products, setProducts] = useState([]);
     const [sales, setSales] = useState([]);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
-    const [cartItems, setCartItems] = useState([]); // ⛔ no mock data
+    const [cartItems, setCartItems] = useState([]);
+    const [submittedOrders, setSubmittedOrders] = useState([]);
 
     useEffect(() => {
         const getInitialData = async () => {
@@ -30,7 +31,6 @@ const AddOrderPage = () => {
         getInitialData();
     }, []);
 
-    // ✅ Add to cart
     const handleAddToCart = (product) => {
         setCartItems((prevCart) => {
             const existingItem = prevCart.find((item) => item._id === product._id);
@@ -46,20 +46,27 @@ const AddOrderPage = () => {
         });
     };
 
-    // ✅ Remove from cart
     const handleRemoveItem = (itemToRemove) => {
         setCartItems((prev) =>
             prev.filter((item) => item._id !== itemToRemove._id)
         );
     };
 
+    const clearCart = () => setCartItems([]);
+
     return (
         <div className={styles.grid}>
             <SelectCustomer onChoose={setSelectedCustomer} />
             <AddNewCustomer />
             <ProductSelector products={products} onAddToCart={handleAddToCart} />
-            <CartSummary customer={selectedCustomer} cart={cartItems} onRemoveItem={handleRemoveItem} />
-            <OrderSummary orders={sales} />
+            <CartSummary
+                customer={selectedCustomer}
+                cart={cartItems}
+                onRemoveItem={handleRemoveItem}
+                onSubmitOrder={(newOrder) => setSubmittedOrders((prev) => [...prev, newOrder])}
+                clearCart={clearCart}
+            />
+            <OrderSummary orders={submittedOrders} />
         </div>
     );
 };

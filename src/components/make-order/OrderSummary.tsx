@@ -25,6 +25,15 @@ const OrderSummary = ({ orders }) => {
                             <p>Region: {order.region}</p>
                             <p>Total Items: {order.products?.length || 0}</p>
                             <p>Total: <strong>{Number(order.totalAmount || 0).toLocaleString()} TZS</strong></p>
+                            {order.products && order.products.length > 0 && (
+                                <ul className={styles.productList}>
+                                    {order.products.map((product, idx) => (
+                                        <li key={idx} className={styles.productItem}>
+                                            - {product.name} (x{product.quantity})
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
                     </li>
                 ))}

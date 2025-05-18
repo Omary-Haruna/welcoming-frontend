@@ -259,7 +259,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
 
                         <button
                             className={styles.popupButton}
-                            onClick={() => {
+                            onClick={async () => {
                                 const quantity = quantities[selectedProduct._id] ?? 1;
                                 const price = prices[selectedProduct._id] ?? selectedProduct.sellingPrice;
                                 const total = price * quantity;
@@ -282,6 +282,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
 
                                 addToCart(newItem);
 
+                                // 🧠 Save customer to backend if info is available
                                 if (customerName && customerPhone) {
                                     setLastCustomerInfo({
                                         name: customerName,
@@ -290,6 +291,29 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                                         district,
                                         paymentMethod
                                     });
+
+                                    try {
+                                        const res = await fetch('https://welcoming-backend.onrender.com/api/customers', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                name: customerName,
+                                                phone: customerPhone,
+                                                region: region?.value || '',
+                                                district: district?.value || ''
+                                            })
+                                        });
+
+                                        const data = await res.json();
+
+                                        if (!res.ok) {
+                                            console.warn('⚠️ Failed to save customer:', data.message);
+                                        } else {
+                                            console.log('✅ Customer saved or already exists');
+                                        }
+                                    } catch (err) {
+                                        console.error('❌ Error saving customer:', err);
+                                    }
                                 }
 
                                 toast.success(`${selectedProduct.name} (${formatTZS(price)}) added to cart! ✅`);
@@ -302,6 +326,7 @@ const SalesPoint: React.FC<Props> = ({ category, onCategoryChange, products }) =
                         >
                             Add to Cart
                         </button>
+
 
                         <button className={styles.closeBtn} onClick={() => setShowPopup(false)}>Cancel</button>
                     </div>

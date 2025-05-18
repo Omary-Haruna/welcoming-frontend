@@ -34,3 +34,14 @@
 .details p {
     margin: 2px 0;
 }
+
+.productList {
+    margin-top: 0.5rem;
+    padding-left: 1.2rem;
+    font-size: 0.9rem;
+    color: #334155;
+}
+
+.productItem {
+    margin-bottom: 2px;
+}

@@ -15,7 +15,7 @@ const AddNewCustomer = () => {
 
     const handleRegionChange = (selected: any) => {
         setRegion(selected);
-        setDistrict(null); // reset district on region change
+        setDistrict(null); // Reset district
     };
 
     const handleAddCustomer = async () => {
@@ -27,11 +27,11 @@ const AddNewCustomer = () => {
         const result = await Swal.fire({
             title: 'Add Customer?',
             html: `
-                <p><strong>Name:</strong> ${name}</p>
-                <p><strong>Region:</strong> ${region.label}</p>
-                <p><strong>District:</strong> ${district.label}</p>
-                <p><strong>Phone:</strong> ${phone}</p>
-            `,
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Region:</strong> ${region.label}</p>
+        <p><strong>District:</strong> ${district.label}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+      `,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Yes, Add',
@@ -41,19 +41,39 @@ const AddNewCustomer = () => {
         if (result.isConfirmed) {
             setLoading(true);
 
-            // Simulate saving (replace with API call)
-            setTimeout(() => {
+            try {
+                const res = await fetch('https://welcoming-backend.onrender.com/api/customers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name,
+                        region: region.value,
+                        district: district.value,
+                        phone,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    Swal.fire('Success', 'Customer successfully added!', 'success');
+                    setName('');
+                    setPhone('');
+                    setRegion(null);
+                    setDistrict(null);
+                } else {
+                    Swal.fire('Error', data.message || 'Something went wrong', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Failed to connect to the server.', 'error');
+            } finally {
                 setLoading(false);
-                Swal.fire('Success', 'Customer successfully added!', 'success');
-                setName('');
-                setRegion(null);
-                setDistrict(null);
-                setPhone('');
-            }, 1000);
+            }
         }
     };
 
-    // Generate district options from selected region
     const districtOptions = region?.value
         ? regionDistricts[region.value]?.map((d) => ({ value: d, label: d })) || []
         : [];
