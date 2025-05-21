@@ -7,22 +7,26 @@ interface Customer {
     region: string;
 }
 
-const SelectCustomer = ({ onChoose }) => {
+interface Props {
+    onChoose: (customer: Customer) => void;
+}
+
+const SelectCustomer: React.FC<Props> = ({ onChoose }) => {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
     useEffect(() => {
-        fetch("https://welcoming-backend.onrender.com/api/sales/customers")
+        fetch("https://welcoming-backend.onrender.com/api/customers")
             .then((res) => res.json())
             .then((data) => {
-                if (data.success) {
+                if (data.success && Array.isArray(data.customers)) {
                     setCustomers(data.customers);
                     setFilteredCustomers(data.customers);
                 }
             })
-            .catch((err) => console.error("Error fetching customers:", err));
+            .catch((err) => console.error("❌ Error fetching customers:", err));
     }, []);
 
     useEffect(() => {
@@ -40,7 +44,7 @@ const SelectCustomer = ({ onChoose }) => {
         if (selectedIndex !== null) {
             const customer = filteredCustomers[selectedIndex];
             onChoose(customer);
-            alert(`Customer selected: ${customer.name}`);
+            alert(`✅ Customer selected: ${customer.name}`);
         }
     };
 
@@ -74,9 +78,7 @@ const SelectCustomer = ({ onChoose }) => {
                         {filteredCustomers.map((customer, index) => (
                             <tr
                                 key={index}
-                                className={
-                                    selectedIndex === index ? styles.selectedRow : ""
-                                }
+                                className={selectedIndex === index ? styles.selectedRow : ""}
                             >
                                 <td>{index + 1}</td>
                                 <td>{customer.name}</td>

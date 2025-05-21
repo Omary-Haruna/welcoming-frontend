@@ -309,3 +309,51 @@
         padding: 4px;
     }
 }
+
+.topBar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.searchBox {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 0.3rem 0.5rem;
+    border-radius: 8px;
+    gap: 0.5rem;
+}
+
+.searchBox input {
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+.dropdown {
+    padding: 0.4rem;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.scrollContainer {
+    max-height: 460px;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 16px;
+    scroll-behavior: smooth;
+}
+
+.scrollContainer::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollContainer::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 6px;
+}
+
+.scrollContainer::-webkit-scrollbar-track {
+    background: transparent;
+}

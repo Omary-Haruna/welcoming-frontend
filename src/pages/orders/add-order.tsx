@@ -14,12 +14,16 @@ const AddOrderPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [submittedOrders, setSubmittedOrders] = useState([]);
 
+    // ✅ Load logged-in user (from localStorage or context)
+    const loggedInUser = JSON.parse(localStorage.getItem("user"));
+
+    // ✅ Fetch products + sales once on mount
     useEffect(() => {
         const getInitialData = async () => {
             try {
                 const [productData, salesData] = await Promise.all([
-                    fetchData('/api/products/all'),
-                    fetchData('/api/sales/all'),
+                    fetchData("/api/products/all"),
+                    fetchData("/api/sales/all"),
                 ]);
                 setProducts(productData.products);
                 setSales(salesData.sales || salesData);
@@ -29,6 +33,21 @@ const AddOrderPage = () => {
         };
 
         getInitialData();
+    }, []);
+
+    // ✅ Fetch recent orders from backend
+    const fetchRecentOrders = async () => {
+        try {
+            const res = await fetchData("/api/orders/recent");
+            setSubmittedOrders(res.orders || []);
+        } catch (err) {
+            console.error("Failed to fetch recent orders:", err);
+        }
+    };
+
+    // ✅ Fetch recent orders once on page load
+    useEffect(() => {
+        fetchRecentOrders();
     }, []);
 
     const handleAddToCart = (product) => {
@@ -59,13 +78,16 @@ const AddOrderPage = () => {
             <SelectCustomer onChoose={setSelectedCustomer} />
             <AddNewCustomer />
             <ProductSelector products={products} onAddToCart={handleAddToCart} />
+
             <CartSummary
                 customer={selectedCustomer}
                 cart={cartItems}
                 onRemoveItem={handleRemoveItem}
-                onSubmitOrder={(newOrder) => setSubmittedOrders((prev) => [...prev, newOrder])}
                 clearCart={clearCart}
+                user={loggedInUser} // ✅ Send logged-in user to CartSummary
+                refreshOrders={fetchRecentOrders} // ✅ Refresh OrderSummary after submission
             />
+
             <OrderSummary orders={submittedOrders} />
         </div>
     );

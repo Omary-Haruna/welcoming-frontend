@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
-import { v4 as uuidv4 } from 'uuid';
 
 const SalesCart: React.FC = () => {
     const { cart, clearCart, removeFromCart, updateQuantity, setCart } = useCart();
@@ -26,15 +25,23 @@ const SalesCart: React.FC = () => {
             return;
         }
 
+        const pendingCartId = localStorage.getItem('pendingCartId');
+
         const savePendingCart = async () => {
             try {
-                await fetch('https://welcoming-backend.onrender.com/api/pending-cart/save', {
+                const res = await fetch('https://welcoming-backend.onrender.com/api/pending-cart/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cart }),
+                    body: JSON.stringify({ _id: pendingCartId, cart }),
                 });
+
+                const data = await res.json();
+                if (data._id) {
+                    localStorage.setItem('pendingCartId', data._id);
+                }
             } catch (err) {
                 console.error('Failed to save cart:', err);
+                localStorage.removeItem('pendingCartId');
             }
         };
 
@@ -108,12 +115,14 @@ const SalesCart: React.FC = () => {
 
                 toast.success('Checkout completed! ✅');
                 clearCart();
+                setCart([]);
+                localStorage.removeItem('pendingCartId');
 
                 await fetch('https://welcoming-backend.onrender.com/api/pending-cart/clear', {
                     method: 'DELETE',
                 });
 
-                setCart([]);
+                window.dispatchEvent(new CustomEvent('salesUpdated'));
             } else {
                 toast.error('Failed to record sale.');
             }

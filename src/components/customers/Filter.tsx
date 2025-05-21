@@ -11,9 +11,10 @@ const allCards = [
     'ProductStatsCard',
     'EngagementCard',
     'FinancialStatsCard',
+    'AddCustomerCard' // ✅ Added this line
 ];
 
-// Only the first 3 will be checked by default
+// Default visible cards
 const defaultVisibleCards = [
     'GeneralStatsCard',
     'PurchaseBehaviorCard',
@@ -33,10 +34,9 @@ export default function Filter({ visibleCards = defaultVisibleCards, setVisibleC
     };
 
     const uncheckAll = () => {
-        setVisibleCards([]); // clears all cards
+        setVisibleCards([]); // Clear all cards
     };
 
-    // Close dropdown if clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -74,7 +74,7 @@ export default function Filter({ visibleCards = defaultVisibleCards, setVisibleC
                             checked={visibleCards.includes(card)}
                             onChange={() => toggleCard(card)}
                         />
-                        {card.replace('Card', '')}
+                        {card.replace('Card', '').replace(/([A-Z])/g, ' $1').trim()}
                     </label>
                 ))}
             </div>

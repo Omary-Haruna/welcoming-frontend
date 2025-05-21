@@ -27,6 +27,11 @@ const SalesSummary: React.FC = () => {
 
     useEffect(() => {
         fetchSales();
+
+        const handleRefresh = () => fetchSales();
+        window.addEventListener('salesUpdated', handleRefresh);
+
+        return () => window.removeEventListener('salesUpdated', handleRefresh);
     }, []);
 
     const fetchSales = async () => {

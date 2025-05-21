@@ -16,26 +16,27 @@ export default function CustomerManagementPage() {
         'TimeBasedStatsCard',
     ]);
 
-    useEffect(() => {
-        const fetchCustomers = async () => {
-            try {
-                const res = await fetch('https://welcoming-backend.onrender.com/api/sales/customers');
-                const data = await res.json();
+    // 🔁 Fetch customers (can be reused on add)
+    const fetchCustomers = async () => {
+        try {
+            const res = await fetch('https://welcoming-backend.onrender.com/api/sales/customers');
+            const data = await res.json();
 
-                if (data.success && Array.isArray(data.customers)) {
-                    const enhanced = data.customers.map((c, index) => ({
-                        ...c,
-                        id: index.toString()
-                    }));
+            if (data.success && Array.isArray(data.customers)) {
+                const enhanced = data.customers.map((c, index) => ({
+                    ...c,
+                    id: index.toString()
+                }));
 
-                    setAllCustomers(enhanced);
-                    setCustomers(enhanced);
-                }
-            } catch (error) {
-                console.error('❌ Failed to fetch customers:', error);
+                setAllCustomers(enhanced);
+                setCustomers(enhanced);
             }
-        };
+        } catch (error) {
+            console.error('❌ Failed to fetch customers:', error);
+        }
+    };
 
+    useEffect(() => {
         fetchCustomers();
     }, []);
 
@@ -80,7 +81,7 @@ export default function CustomerManagementPage() {
         <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <CustomerHeader />
             <Filter visibleCards={visibleCards} setVisibleCards={setVisibleCards} />
-            <CustomerCards visibleCards={visibleCards} customers={customers} />
+            <CustomerCards visibleCards={visibleCards} customers={customers} onAddCustomer={fetchCustomers} />
             <CustomerSearchAndFilter filters={filters} onChange={handleFilterChange} />
             <CustomerTable customers={customers} />
         </div>

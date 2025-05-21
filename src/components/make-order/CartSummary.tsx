@@ -1,10 +1,10 @@
-// ✅ CartSummary.tsx
 import React, { useState } from "react";
 import styles from "./CartSummary.module.css";
 import { X, PackagePlus } from "lucide-react";
 import OrderModal from "./OrderModal";
+import axios from "axios";
 
-const CartSummary = ({ customer, cart, onRemoveItem, onSubmitOrder, clearCart }) => {
+const CartSummary = ({ customer, cart, onRemoveItem, clearCart, user, refreshOrders }) => {
     const [showModal, setShowModal] = useState(false);
 
     const totalAmount = cart?.reduce(
@@ -16,11 +16,41 @@ const CartSummary = ({ customer, cart, onRemoveItem, onSubmitOrder, clearCart })
         ? `${customer.name} from ${customer.region}${customer.district ? ` (${customer.district})` : ""}`
         : "";
 
-    const handleOrderSubmit = (orderData) => {
-        onSubmitOrder(orderData);
-        clearCart();
-        setShowModal(false);
-        alert("✅ Order submitted successfully!");
+    const handleOrderSubmit = async (detailsFromModal) => {
+        try {
+            const orderData = {
+                customer: {
+                    ...customer,
+                    expectedArrival: detailsFromModal.expectedArrival,
+                    parcelGivenTo: detailsFromModal.parcelGivenTo || null,
+                    fromRegion: detailsFromModal.fromRegion,
+                    toRegion: detailsFromModal.toRegion,
+                    toDistrict: detailsFromModal.toDistrict,
+                },
+                cart,
+                totalAmount,
+                createdBy: user?.name || user?.email || "Unknown"
+            };
+
+            const response = await axios.post(
+                "https://welcoming-backend.onrender.com/api/orders/create",
+                orderData
+            );
+
+            if (response.data.success) {
+                clearCart();
+                setShowModal(false);
+                alert("✅ Order submitted successfully!");
+                if (refreshOrders) {
+                    refreshOrders(); // ✅ Refresh OrderSummary
+                }
+            } else {
+                alert("❌ Failed to submit order.");
+            }
+        } catch (error) {
+            console.error("Error submitting order:", error);
+            alert("❌ Something went wrong while submitting the order.");
+        }
     };
 
     return (
@@ -47,9 +77,7 @@ const CartSummary = ({ customer, cart, onRemoveItem, onSubmitOrder, clearCart })
                                         </p>
                                         <p>Qty: {item.quantity}</p>
                                         <p>Price: {Number(item.price).toLocaleString()} TZS</p>
-                                        <p>
-                                            Subtotal: {Number(item.quantity * item.price).toLocaleString()} TZS
-                                        </p>
+                                        <p>Subtotal: {Number(item.quantity * item.price).toLocaleString()} TZS</p>
                                     </div>
                                     <button
                                         className={styles.removeBtn}
@@ -84,8 +112,8 @@ const CartSummary = ({ customer, cart, onRemoveItem, onSubmitOrder, clearCart })
             <OrderModal
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
-                customer={{ ...customer, cart }}
                 onSubmitOrder={handleOrderSubmit}
+                customer={customer}
             />
         </div>
     );

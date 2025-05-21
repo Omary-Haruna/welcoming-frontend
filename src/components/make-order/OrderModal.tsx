@@ -12,25 +12,29 @@ const OrderModal = ({ isOpen, onClose, customer, onSubmitOrder }) => {
     const [parcelHandler, setParcelHandler] = useState("");
 
     const handleSubmit = () => {
-        if (!fromRegion || !toRegion || !toDistrict || !expectedDate || !parcelHandler) {
-            alert("Please fill all fields.");
+        if (!fromRegion || !toRegion || !toDistrict || !expectedDate) {
+            alert("❌ Please fill all required fields.");
             return;
         }
 
-        const order = {
-            customerName: customer?.name,
-            region: customer?.region,
-            district: customer?.district || null,
-            date: new Date().toISOString(),
-            from: fromRegion.label,
-            to: `${toRegion.label}, ${toDistrict.label}`,
-            expectedDate,
-            parcelHandler,
-            products: customer?.cart || [],
-            totalAmount: customer?.cart?.reduce((sum, item) => sum + item.price * item.quantity, 0) || 0,
-        };
+        const arrival = new Date(expectedDate);
+        const now = new Date();
 
-        onSubmitOrder(order);
+        if (arrival < now) {
+            alert("❌ Expected arrival must be a future date/time.");
+            return;
+        }
+
+        const formattedDate = arrival.toISOString(); // you can also format as readable string if needed
+
+        onSubmitOrder({
+            expectedArrival: formattedDate,
+            parcelGivenTo: parcelHandler || null,
+            fromRegion: fromRegion.value,
+            toRegion: toRegion.value,
+            toDistrict: toDistrict.value,
+        });
+
         onClose();
     };
 
@@ -75,7 +79,7 @@ const OrderModal = ({ isOpen, onClose, customer, onSubmitOrder }) => {
                     onChange={(e) => setExpectedDate(e.target.value)}
                 />
 
-                <label>Parcel Given To</label>
+                <label>Parcel Given To (optional)</label>
                 <input
                     type="text"
                     className={styles.input}

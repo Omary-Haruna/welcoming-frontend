@@ -1,10 +1,8 @@
 .box {
+    padding: 1rem;
     background: white;
-    padding: 1.5rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    overflow-y: auto;
-    max-height: 400px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
 }
 
 .orderList {
@@ -13,35 +11,70 @@
     margin: 0;
 }
 
-.orderItem {
-    padding: 1rem 0;
-    border-bottom: 1px solid #e2e8f0;
+.orderCard {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    border-left: 4px solid #4f46e5;
+    cursor: pointer;
 }
 
-.header {
+.orderCard:hover {
+    background: #eef2f7;
+}
+
+.orderHeader {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    font-size: 1rem;
-    margin-bottom: 0.3rem;
-    font-weight: 600;
-}
-
-.details {
+    font-weight: bold;
+    gap: 10px;
     font-size: 0.95rem;
-    color: #334155;
 }
 
-.details p {
-    margin: 2px 0;
+.orderBody {
+    overflow: hidden;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.orderBody p {
+    margin: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status {
+    font-weight: bold;
+    color: #2563eb;
 }
 
 .productList {
-    margin-top: 0.5rem;
-    padding-left: 1.2rem;
-    font-size: 0.9rem;
-    color: #334155;
+    margin-top: 8px;
+    padding-left: 1rem;
 }
 
 .productItem {
-    margin-bottom: 2px;
+    font-size: 0.88rem;
+    color: #374151;
+}
+
+.linkContainer {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.viewAllLink {
+    font-weight: 500;
+    text-decoration: none;
+    color: #4f46e5;
+    transition: color 0.3s;
+}
+
+.viewAllLink:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
 }

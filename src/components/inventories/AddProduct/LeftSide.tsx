@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import { BeatLoader } from 'react-spinners'; // ✨ NEW
+import { BeatLoader } from 'react-spinners';
 
 interface LeftSideProps {
     fetchProducts: () => void;
@@ -26,8 +26,9 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
         sellingPrice: '',
         quantity: '',
         images: [] as string[],
+        imageLink: '', // New field for pasting link
     });
-    const [loading, setLoading] = useState(false); // ✨ NEW
+    const [loading, setLoading] = useState(false);
 
     const triggerImageUpload = () => imageInputRef.current?.click();
     const handleImportClick = () => fileInputRef.current?.click();
@@ -80,7 +81,7 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
             if (data.success) {
                 await Swal.fire('Success', `${formData.name} added successfully!`, 'success');
                 fetchProducts();
-                setFormData({ name: '', category: '', buyingPrice: '', sellingPrice: '', quantity: '', images: [] });
+                setFormData({ name: '', category: '', buyingPrice: '', sellingPrice: '', quantity: '', images: [], imageLink: '' });
             } else {
                 Swal.fire('Error', 'Failed to save product.', 'error');
             }
@@ -90,11 +91,21 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
         }
     };
 
+    const handleAddImageLink = () => {
+        if (formData.imageLink.trim()) {
+            setFormData(prev => ({
+                ...prev,
+                images: [...prev.images, prev.imageLink.trim()],
+                imageLink: '',
+            }));
+        }
+    };
+
     const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        setLoading(true); // ✨ Show loading while uploading Excel
+        setLoading(true);
 
         const reader = new FileReader();
         reader.onload = async (event) => {
@@ -112,8 +123,8 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
                 const sellingPrice = parseFloat(item['Selling Price']);
 
                 if (buyingPrice > sellingPrice) {
-                    errorLines.push(i + 2); // +2 to match Excel line number (1 for header, 1 for zero-index)
-                    continue; // Skip adding this product
+                    errorLines.push(i + 2);
+                    continue;
                 }
 
                 let imageUrl = '';
@@ -145,7 +156,7 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
                 });
             }
 
-            setLoading(false); // ✨ Hide loading
+            setLoading(false);
 
             if (errorLines.length > 0) {
                 Swal.fire({
@@ -162,7 +173,6 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
 
         reader.readAsArrayBuffer(file);
     };
-
 
     const pickLocalFile = async (): Promise<File | null> => {
         return new Promise((resolve) => {
@@ -261,6 +271,24 @@ export default function LeftSide({ fetchProducts }: LeftSideProps) {
                         <button type="button" onClick={triggerImageUpload} className={styles.uploadButton}>
                             <Image size={18} /> Choose Images
                         </button>
+
+                        <label>Or Paste Cloudinary Image URL</label>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+                            <input
+                                type="text"
+                                placeholder="https://res.cloudinary.com/..."
+                                value={formData.imageLink}
+                                onChange={(e) => setFormData(prev => ({ ...prev, imageLink: e.target.value }))}
+                                style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleAddImageLink}
+                                style={{ padding: '8px 12px', borderRadius: '6px', background: '#007bff', color: '#fff', border: 'none' }}
+                            >
+                                Add
+                            </button>
+                        </div>
 
                         {formData.images.length > 0 && (
                             <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>

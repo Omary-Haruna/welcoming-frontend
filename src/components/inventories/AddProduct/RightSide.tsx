@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import styles from './RightSide.module.css';
-import { Pencil, Trash2, Save } from 'lucide-react';
+import { Pencil, Trash2, Save, Search } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -10,6 +10,7 @@ interface Product {
     image?: string;
     category: string;
     sellingPrice: number;
+    buyingPrice?: number;
     quantity: number;
     images?: string[];
 }
@@ -26,6 +27,8 @@ export default function RightSide({ products, fetchProducts }: RightSideProps) {
     const [editIndex, setEditIndex] = useState<number | null>(null);
     const [editableProduct, setEditableProduct] = useState<Partial<Product>>({});
     const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleEditClick = (index: number) => {
@@ -42,6 +45,7 @@ export default function RightSide({ products, fetchProducts }: RightSideProps) {
                 name: editableProduct.name || currentProduct.name,
                 category: editableProduct.category || currentProduct.category,
                 sellingPrice: editableProduct.sellingPrice ?? currentProduct.sellingPrice,
+                buyingPrice: editableProduct.buyingPrice ?? currentProduct.buyingPrice,
                 quantity: editableProduct.quantity ?? currentProduct.quantity,
                 image: editableProduct.image || currentProduct.image,
             };
@@ -120,54 +124,53 @@ export default function RightSide({ products, fetchProducts }: RightSideProps) {
         return image.trim();
     };
 
-    const mostImported = products.reduce((acc: Record<string, number>, curr) => {
-        acc[curr.name] = (acc[curr.name] || 0) + 1;
-        return acc;
-    }, {});
-    const most = Object.entries(mostImported).sort((a, b) => b[1] - a[1])[0];
-    const mostImportedProduct = most ? { name: most[0], count: most[1] } : null;
-    const lastImported = products[products.length - 1];
-    const totalQuantity = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
-    const totalPrice = products.reduce((sum, p) => sum + (p.quantity || 0) * (p.sellingPrice || 0), 0);
+    const categories = Array.from(new Set(products.map((p) => p.category))).filter(Boolean);
+    const filteredProducts = products.filter((p) => {
+        const matchesSearch =
+            p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.category.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = categoryFilter === '' || p.category === categoryFilter;
+        return matchesSearch && matchesCategory;
+    });
+
+    const totalQuantity = filteredProducts.reduce((sum, p) => sum + (p.quantity || 0), 0);
+    const totalPrice = filteredProducts.reduce((sum, p) => sum + (p.quantity || 0) * (p.sellingPrice || 0), 0);
 
     return (
         <>
             <div className={styles.container}>
-                <div className={styles.summary}>
-                    <div className={styles.cardInfo}>
-                        <span className={styles.cardLabel}>Most Imported Product</span>
-                        {mostImportedProduct ? (
-                            <>
-                                <strong className={styles.cardValue}>{mostImportedProduct.name}</strong>
-                                <span className={styles.cardStat}>Imported {mostImportedProduct.count} times</span>
-                                <span className={styles.cardDate}>{new Date().toLocaleString()}</span>
-                            </>
-                        ) : (
-                            <div className={styles.cardEmpty}>No products yet</div>
-                        )}
+                <div className={styles.topBar}>
+                    <div className={styles.searchBox}>
+                        <Search size={16} />
+                        <input
+                            type="text"
+                            placeholder="Search by name or category..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
-                    <div className={styles.cardInfo}>
-                        <span className={styles.cardLabel}>Last Imported</span>
-                        {lastImported ? (
-                            <>
-                                <strong className={styles.cardValue}>{lastImported.name}</strong>
-                                <span className={styles.cardStat}>Just now</span>
-                                <span className={styles.cardDate}>{new Date().toLocaleString()}</span>
-                            </>
-                        ) : (
-                            <div className={styles.cardEmpty}>No products yet</div>
-                        )}
-                    </div>
+
+                    <select
+                        className={styles.dropdown}
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                    >
+                        <option value="">All Categories</option>
+                        {categories.map((cat) => (
+                            <option key={cat} value={cat}>
+                                {cat}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 <h2 className={styles.title}>Recently Imported Products</h2>
 
-                {products.length === 0 ? (
-                    <p className={styles.noProducts}>No products found in the system.</p>
-                ) : (
+                <div className={styles.scrollContainer}>
                     <ul className={styles.list}>
-                        {products.map((product, index) => {
-                            const isEditing = index === editIndex;
+                        {filteredProducts.map((product, index) => {
+                            const realIndex = products.findIndex((p) => p._id === product._id);
+                            const isEditing = realIndex === editIndex;
                             const lineTotal = (product.sellingPrice || 0) * (product.quantity || 0);
 
                             return (
@@ -203,26 +206,32 @@ export default function RightSide({ products, fetchProducts }: RightSideProps) {
                                             <>
                                                 <input
                                                     type="text"
-                                                    placeholder="Product Name"
                                                     value={editableProduct.name || ''}
+                                                    placeholder="Name"
                                                     onChange={(e) => setEditableProduct({ ...editableProduct, name: e.target.value })}
                                                 />
                                                 <input
                                                     type="text"
-                                                    placeholder="Category"
                                                     value={editableProduct.category || ''}
+                                                    placeholder="Category"
                                                     onChange={(e) => setEditableProduct({ ...editableProduct, category: e.target.value })}
                                                 />
                                                 <input
                                                     type="number"
-                                                    placeholder="Selling Price"
+                                                    value={editableProduct.buyingPrice || ''}
+                                                    placeholder="Buying Price"
+                                                    onChange={(e) => setEditableProduct({ ...editableProduct, buyingPrice: Number(e.target.value) })}
+                                                />
+                                                <input
+                                                    type="number"
                                                     value={editableProduct.sellingPrice || ''}
+                                                    placeholder="Selling Price"
                                                     onChange={(e) => setEditableProduct({ ...editableProduct, sellingPrice: Number(e.target.value) })}
                                                 />
                                                 <input
                                                     type="number"
-                                                    placeholder="Quantity"
                                                     value={editableProduct.quantity || ''}
+                                                    placeholder="Quantity"
                                                     onChange={(e) => setEditableProduct({ ...editableProduct, quantity: Number(e.target.value) })}
                                                 />
                                                 <input
@@ -238,9 +247,9 @@ export default function RightSide({ products, fetchProducts }: RightSideProps) {
                                         ) : (
                                             <>
                                                 <strong>{product.name}</strong>
-                                                <span className={styles.productId}>ID: {product._id}</span>
                                                 <span>{product.category}</span>
-                                                <span>{product.sellingPrice.toLocaleString()} TZS</span>
+                                                <span>Buying: {product.buyingPrice?.toLocaleString() || 'N/A'} TZS</span>
+                                                <span>Selling: {product.sellingPrice.toLocaleString()} TZS</span>
                                                 <span>Qty: {product.quantity}</span>
                                                 <span className={styles.lineTotal}>
                                                     Total: {lineTotal.toLocaleString()} TZS
@@ -251,15 +260,15 @@ export default function RightSide({ products, fetchProducts }: RightSideProps) {
 
                                     <div className={styles.actions}>
                                         {isEditing ? (
-                                            <button disabled={loading} className={styles.iconButton} onClick={handleSave} title="Save">
+                                            <button className={styles.iconButton} onClick={handleSave} disabled={loading}>
                                                 {loading ? 'Saving...' : <Save size={16} />}
                                             </button>
                                         ) : (
-                                            <button className={styles.iconButton} onClick={() => handleEditClick(index)} title="Edit">
+                                            <button className={styles.iconButton} onClick={() => handleEditClick(realIndex)}>
                                                 <Pencil size={16} />
                                             </button>
                                         )}
-                                        <button className={styles.iconButton} onClick={() => handleDelete(product._id)} title="Delete">
+                                        <button className={styles.iconButton} onClick={() => handleDelete(product._id)}>
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -267,7 +276,7 @@ export default function RightSide({ products, fetchProducts }: RightSideProps) {
                             );
                         })}
                     </ul>
-                )}
+                </div>
 
                 <div className={styles.totals}>
                     <div>
